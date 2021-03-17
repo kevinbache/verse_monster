@@ -1,17 +1,8 @@
 # verse_monster
-
-Brown, paper, tied up with string.
-
-## Usage
+He eats rhythm and spits rhyme.
 
 ## Installation
-
-## Requirements
-
-## Compatibility
-
-## Licence
+`pip install --editable .`
 
 ## Authors
-
-`verse_monster` was written by `My Name <kevin.bache@gmail.com>`_.
+`verse_monster` was written by `Kevin Bache <kevin.bache@gmail.com>` and `Rick Ellis`.
