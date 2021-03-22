@@ -131,7 +131,7 @@ if __name__ == '__main__':
             if num_valid is not None:
                 ds_valid = ds_valid[:num_valid]
 
-            keys_to_remove = ('decoder_input_ids', 'decoder_attention_mask')
+            keys_to_remove = ('decoder_attention_mask', )
 
             for dp in ds_train:
                 for k in keys_to_remove:
