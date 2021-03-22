@@ -131,6 +131,13 @@ if __name__ == '__main__':
             if num_valid is not None:
                 ds_valid = ds_valid[:num_valid]
 
+            for dp in ds_train:
+                del dp['decoder_attention_mask']
+
+            for dp in ds_valid:
+                del dp['decoder_attention_mask']
+
+
             # ds_test = utils.load_cloudpickle(constants.TEST_DATASET)
 
             # ds_tiny = ds_valid[:10]
