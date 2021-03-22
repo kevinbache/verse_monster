@@ -110,8 +110,8 @@ if __name__ == '__main__':
     do_recreate_my_model = False
     do_test_run = False
 
-    batch_size = 4
-    num_beams = 1
+    batch_size = 7
+    num_beams = 4
 
     num_train = 1000
     num_valid = 100
