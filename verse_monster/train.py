@@ -113,6 +113,7 @@ if __name__ == '__main__':
     batch_size = 4
     num_beams = 1
 
+    num_train = 1000
     num_valid = 100
 
     if do_test_run:
@@ -125,6 +126,8 @@ if __name__ == '__main__':
             ds_train = utils.load_cloudpickle(constants.TRAIN_DATASET)
             ds_valid = utils.load_cloudpickle(constants.VALID_DATASET)
 
+            if num_train is not None:
+                ds_train = ds_valid[:num_train]
             if num_valid is not None:
                 ds_valid = ds_valid[:num_valid]
 
@@ -214,10 +217,13 @@ if __name__ == '__main__':
     )
 
     train_out = trainer.train()
+    print(train_out)
 
-    eval_out = trainer.evaluate(
-        eval_dataset=ds_tiny if do_test_run else ds_valid,
-        num_beams=num_beams,
-    )
+    # eval_out = trainer.evaluate(
+    #     eval_dataset=ds_tiny if do_test_run else ds_valid,
+    #     num_beams=num_beams,
+    # )
+    # print(eval_out)
 
-    predict_out = trainer.predict(test_dataset=ds_tiny if do_test_run else ds_valid, max_length=64, num_beams=num_beams)
+    predict_out = trainer.predict(test_dataset=ds_tiny if do_test_run else ds_valid, max_length=40, num_beams=num_beams)
+    print(predict_out)
