@@ -136,12 +136,15 @@ if __name__ == '__main__':
             for dp in ds_train:
                 for k in keys_to_remove:
                     if k in dp:
+                        print('removing k')
                         del dp[k]
+            print(f'dp.keys(): {dp.keys()}')
 
             for dp in ds_valid:
                 for k in keys_to_remove:
                     if k in dp:
                         del dp[k]
+            print(f'dp.keys(): {dp.keys()}')
 
             # ds_test = utils.load_cloudpickle(constants.TEST_DATASET)
 
