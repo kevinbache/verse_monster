@@ -1,4 +1,11 @@
 *.py[cod]
+*.cloudpickle
+*.bin
+.DS_Store
+
+model
+wandb
+output
 
 # C extensions
 *.so

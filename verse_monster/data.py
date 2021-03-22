@@ -1,6 +1,12 @@
-import pandas as pd
+import copy
+from collections import defaultdict
+from typing import List, Dict, Any
 
-from verse_monster import constants, utils
+import pandas as pd
+import torch
+from torch.utils.data import TensorDataset, Dataset, IterableDataset
+
+from verse_monster import constants, utils, tokenizer
 
 
 def cmu_dict_2_csv():
@@ -58,5 +64,126 @@ def cmu_dict_2_csv():
     print(len(all_phonemes), all_phonemes)
 
 
+class ListDataset(IterableDataset):
+    def __init__(self, list_of_datapoints: List[Dict[str, Any]], list_of_meta: List[Dict[str, Any]]):
+        super().__init__()
+        assert (len(list_of_datapoints) == len(list_of_meta))
+        self.data = list_of_datapoints
+        self.meta = list_of_meta
+
+    def __getitem__(self, item):
+        return self.data[item]
+
+    def __len__(self):
+        return len(self.data)
+
+    def __iter__(self):
+        return iter(self.data)
+
+
 if __name__ == '__main__':
+    seed = 1234
+
     cmu_dict_2_csv()
+
+    tok = tokenizer.CharPhonemeTokenizer()
+
+    # tok.prepare_seq2seq_batch(src_texts=['abate'], tgt_texts=['aa0 aa1 aa2'])
+
+    with utils.Timer('reading, applying'):
+        df = pd.read_csv(constants.CMU_CSV)
+        df['letters_tok'] = \
+            df['letters'].apply(
+                lambda x: tok(str(x), return_token_type_ids=False, return_tensors='pt'))
+
+        with tok.as_target_tokenizer():
+            df['phonemes_tok'] = \
+                df['phonemes'].apply(
+                    lambda x: tok(str(x), return_token_type_ids=False, return_tensors='pt'))
+
+        print('letters_tok: ', df['letters_tok'].iloc[0])
+        print('phonemes_tok: ', df['phonemes_tok'].iloc[0])
+        print()
+
+    with utils.Timer('making datapoints and metas'):
+        datapoints = []
+        metas = []
+        for ind, row in df.iterrows():
+            d = copy.copy(row['letters_tok'])
+            for k in row['phonemes_tok']:
+                d[f'decoder_{k}'] = row['phonemes_tok'][k]
+
+            for k in d:
+                d[k] = d[k].squeeze()
+
+            # preparing for seq2seq teacher forcing
+            # for output sentence ['tok1', 'tok2'] -->
+            #   d['decoder_input_ids'] = ['<s>', 'tok1', 'tok2']
+            #   d['labels'] = ['tok1', 'tok2', '</s>']
+            d['labels'] = d['decoder_input_ids']
+            d['decoder_input_ids'] = torch.cat([torch.tensor([tok.BOS_ID]), d['decoder_input_ids']])
+            d['decoder_input_ids'] = d['decoder_input_ids'][:-1]
+
+            datapoints.append(d)
+            metas.append({
+                'index': ind,
+                'letters': row['letters'],
+                'phonemes': row['phonemes'],
+            })
+
+        print(f'len(datapoints): {len(datapoints)}')
+        print(f'len(metas): {len(metas)}')
+
+    # pd.set_option('display.max_columns', 10)
+    # pd.set_option('display.width', 200)
+    # print(df.head(10))
+
+    # group by letters so we don't have different pronunciations for the same word in train vs valid/test
+    with utils.Timer('grouping...'):
+        letters_to_rows = defaultdict(list)
+        for meta, dp in zip(metas, datapoints):
+            letters_to_rows[meta['letters']].append((dp, meta))
+        print(f'len letterstorows: {len(letters_to_rows)}')
+        del meta, datapoints
+
+    # len(df)
+    # Out[8]: 134222
+    # len(letters_to_rows)
+    # Out[7]: 125631
+
+    with utils.Timer('making datapoints_and_meta...'):
+        datapoints_and_meta = list(letters_to_rows.values())
+        print(len(datapoints_and_meta))
+        print(datapoints_and_meta[0])
+        del letters_to_rows
+        print('splitting...')
+        train, valid, test = utils.train_valid_test_split(datapoints_and_meta, seed=seed)
+        del datapoints_and_meta
+        print('pre_flatten lens: ', len(train), len(valid), len(test))
+
+    with utils.Timer('flattening...'):
+        train = utils.flatten_list_of_lists(train)
+        valid = utils.flatten_list_of_lists(valid)
+        test = utils.flatten_list_of_lists(test)
+
+    with utils.Timer('inverting...'):
+        train, train_meta = zip(*train)
+        valid, valid_meta = zip(*valid)
+        test, test_meta = zip(*test)
+        print('flattend/inverted lens: ', len(train), len(valid), len(test))
+
+    ds_train = ListDataset(train, train_meta)
+    del train, train_meta
+    ds_valid = ListDataset(valid, valid_meta)
+    del valid, valid_meta
+    ds_test = ListDataset(test, test_meta)
+    del test, test_meta
+
+    with utils.Timer('saving...'):
+        utils.save_cloudpickle(ds_train, constants.TRAIN_DATASET)
+        utils.save_cloudpickle(ds_valid, constants.VALID_DATASET)
+        utils.save_cloudpickle(ds_test, constants.TEST_DATASET)
+
+    
+
+    print('done')

@@ -41,6 +41,9 @@ setup(
         'numpy',
         'pandas',
         'pyyaml',
+        'transformers',
+        'scikit-learn',
+        'cloudpickle',
     ],
 
     classifiers=[
@@ -52,3 +55,4 @@ setup(
         'Programming Language :: Python :: 3.7',
     ],
 )
+
