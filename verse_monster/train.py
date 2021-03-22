@@ -110,6 +110,11 @@ if __name__ == '__main__':
     do_recreate_my_model = False
     do_test_run = False
 
+    batch_size = 8
+    num_beams = 1
+
+    num_valid = 100
+
     if do_test_run:
         with utils.Timer('loading tiny datset'):
             ds_tiny = utils.load_cloudpickle(constants.TINY_DATASET)
@@ -119,6 +124,10 @@ if __name__ == '__main__':
         with utils.Timer('loading datasets'):
             ds_train = utils.load_cloudpickle(constants.TRAIN_DATASET)
             ds_valid = utils.load_cloudpickle(constants.VALID_DATASET)
+
+            if num_valid is not None:
+                ds_valid = ds_valid[:num_valid]
+
             # ds_test = utils.load_cloudpickle(constants.TEST_DATASET)
 
             # ds_tiny = ds_valid[:10]
@@ -172,24 +181,26 @@ if __name__ == '__main__':
     # Metric
     metric = load_metric("sacrebleu")
 
+    from transformers import SchedulerType
     trainer_args = Seq2SeqTrainingArguments(
-        output_dir=constants.OUTPUT_DIR,  # output directory
-        logging_dir=constants.LOGS_DIR,  # directory for storing logs
-        # num_train_epochs=1,               # total # of training epochs
-        max_steps=100,
-        per_device_train_batch_size=4,  # batch size per device during training
-        per_device_eval_batch_size=4,  # batch size for evaluation
-        warmup_steps=50,  # number of warmup steps for learning rate scheduler
-        learning_rate=3e-4,
-        weight_decay=0.01,  # strength of weight decay
+        output_dir=constants.OUTPUT_DIR,          # output directory
+        logging_dir=constants.LOGS_DIR,           # directory for storing logs
+        num_train_epochs=1,                       # total # of training epochs
+        # max_steps=100,
+        per_device_train_batch_size=batch_size,   # batch size per device during training
+        per_device_eval_batch_size=batch_size,    # batch size for evaluation
+        warmup_steps=500,                         # number of warmup steps for learning rate scheduler
+        learning_rate=1e-3,
+        weight_decay=0.01,                        # strength of weight decay
         predict_with_generate=True,
         sortish_sampler=True,
-        do_predict=True,
         do_eval=True,
-        evaluation_strategy=IntervalStrategy.STEPS,
-        eval_steps=50,
+        do_predict=True,
+        evaluation_strategy=IntervalStrategy.EPOCH,
+        # eval_steps=50,
         dataloader_num_workers=4,
         report_to=['none'],
+        lr_scheduler_type=SchedulerType.CONSTANT_WITH_WARMUP,
     )
 
     trainer = Seq2SeqTrainer(
@@ -206,7 +217,7 @@ if __name__ == '__main__':
 
     eval_out = trainer.evaluate(
         eval_dataset=ds_tiny if do_test_run else ds_valid,
-        num_beams=5,
+        num_beams=num_beams,
     )
 
-    predict_out = trainer.predict(test_dataset=ds_tiny if do_test_run else ds_valid, max_length=64, num_beams=5)
+    predict_out = trainer.predict(test_dataset=ds_tiny if do_test_run else ds_valid, max_length=64, num_beams=num_beams)
