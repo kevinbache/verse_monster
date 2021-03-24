@@ -107,7 +107,7 @@ def convert_dataset_to_lists(dataset):
 
 
 if __name__ == '__main__':
-    do_recreate_my_model = False
+    do_recreate_my_model = True
     do_test_run = False
 
     batch_size = 7
