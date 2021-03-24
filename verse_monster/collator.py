@@ -51,7 +51,7 @@ class MySeq2SeqCollator:
     pad_to_multiple_of: Optional[int] = None
     label_pad_token_id: int = tokenizer.CharPhonemeTokenizer.pad_token_id
 
-    def __init__(self):
+    def __post_init__(self):
         self.tok = tokenizer.CharPhonemeTokenizer()
 
     @classmethod
