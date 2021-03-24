@@ -45,7 +45,9 @@ def freeze_weights(model: nn.Module, layers_to_skip: List[str], do_learn_layer_n
 
     if do_print_count:
         count = sum(param.numel() for param in model.parameters(recurse=True) if param.requires_grad)
+        total_count = sum(param.numel() for param in model.parameters(recurse=True))
         print(f'Number of trainable parameters: {count}')
+        print(f'Number of total parameters:     {total_count}')
 
 
 def unfreeze_weights(model: nn.Module):
@@ -141,7 +143,7 @@ if __name__ == '__main__':
     seed = 1234
     np.random.seed(seed)
 
-    do_recreate_my_model = True
+    do_recreate_my_model = False
     do_test_run = False
 
     batch_size = 8
