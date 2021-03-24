@@ -138,8 +138,11 @@ def prep_dataset(dataset, keys_to_remove, num_datapoints_to_keep):
 
 
 if __name__ == '__main__':
+    seed = 1234
+    np.random.seed(seed)
+
     do_recreate_my_model = True
-    do_test_run = True
+    do_test_run = False
 
     batch_size = 8
 
@@ -221,7 +224,7 @@ if __name__ == '__main__':
 
         prep_model(my_model, enru_model, layer_names_to_learn, do_learn_layer_norms=True)
 
-        with utils.Timer('saving model'):
+        with utils.Timer('saving my_model'):
             my_model.save_pretrained(save_directory=constants.MODEL_DIR)
     else:
         with utils.Timer('loading model'):
