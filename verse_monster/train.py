@@ -69,8 +69,8 @@ def prep_model(
 
 
 def postprocess_text(preds, labels):
-    preds = [pred.split().strip() for pred in preds if pred]
-    labels = [[label.split().strip()] for label in labels if label]
+    preds = [pred.strip().split() for pred in preds if pred]
+    labels = [[label.strip().split()] for label in labels if label]
 
     return preds, labels
 
