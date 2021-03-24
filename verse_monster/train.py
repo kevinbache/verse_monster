@@ -143,7 +143,7 @@ def prep_dataset(dataset, keys_to_remove, num_datapoints_to_keep):
 
 
 if __name__ == '__main__':
-    do_recreate_my_model = False
+    do_recreate_my_model = True
     do_test_run = False
 
     batch_size = 8
