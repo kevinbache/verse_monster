@@ -49,7 +49,7 @@ class MySeq2SeqCollator:
     padding: Union[bool, str, PaddingStrategy] = True
     max_length: Optional[int] = None
     pad_to_multiple_of: Optional[int] = None
-    label_pad_token_id: int = tokenizer.CharPhonemeTokenizer.pad_token_id
+    label_pad_token_id: int = -100
 
     @classmethod
     def _pad(

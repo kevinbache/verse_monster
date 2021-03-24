@@ -209,9 +209,10 @@ if __name__ == '__main__':
             freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=True)
 
     data_collator = MySeq2SeqCollator(
-        tok,
+        tokenizer=tok,
         model=my_model,
         padding='longest',
+        label_pad_token_id=tok.PAD_ID,
     )
 
     # Metric
