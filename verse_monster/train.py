@@ -107,7 +107,7 @@ def convert_dataset_to_lists(dataset):
 
 
 if __name__ == '__main__':
-    do_recreate_my_model = True
+    do_recreate_my_model = False
     do_test_run = False
 
     batch_size = 7
@@ -165,9 +165,9 @@ if __name__ == '__main__':
                         del dp[k]
             print(f'dp.keys(): {dp.keys()}')
 
-            ds_tiny = ds_valid[:10]
-            utils.save_cloudpickle(ds_tiny, constants.TINY_DATASET)
-            raise ValueError('')
+            # ds_tiny = ds_valid[:10]
+            # utils.save_cloudpickle(ds_tiny, constants.TINY_DATASET)
+            # raise ValueError('')
 
     with utils.Timer('loading CharPhonemeTokenizer'):
         tok = tokenizer.CharPhonemeTokenizer()
