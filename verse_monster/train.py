@@ -116,6 +116,12 @@ def remove_keys(dataset, keys_to_remove):
     print(f'dp.keys(): {dp.keys()}')
 
 
+def limit_datset(ds, num_datapoints):
+    ds.data = ds.data[:num_datapoints]
+    ds.meta = ds.meta[:num_datapoints]
+    return ds
+
+
 WEIGHTS_MODEL_NAME = 'facebook/wmt19-en-ru'
 
 
@@ -142,9 +148,9 @@ if __name__ == '__main__':
             # ds_test = utils.load_cloudpickle(constants.TEST_DATASET)
 
             if num_train is not None:
-                ds_train = ds_valid[:num_train]
+                ds_train = limit_datset(ds_train, num_train)
             if num_valid is not None:
-                ds_valid = ds_valid[:num_valid]
+                ds_valid = limit_datset(ds_train, num_valid)
 
             keys_to_remove = ('decoder_attention_mask', )
             remove_keys(ds_train, keys_to_remove)
@@ -269,12 +275,17 @@ if __name__ == '__main__':
     )
     print(eval_out)
 
-    predict_out = trainer.predict(test_dataset=ds_valid, max_length=40, num_beams=num_beams)
+    predict_out = trainer.predict(
+        test_dataset=ds_valid,
+        max_length=40,
+        num_beams=num_beams,
+        ignore_keys=['decoder_input_ids,', ]
+    )
     print(predict_out)
 
     with tok.as_target_tokenizer():
         preds = tok.batch_decode(predict_out.predictions)
 
     print('Predictions:')
-    for pred in zip(preds:
-        print(pred)
+    for dp, pred in zip(ds_valid, preds):
+        print(dp[''], pred)
