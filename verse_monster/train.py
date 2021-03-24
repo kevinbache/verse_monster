@@ -164,7 +164,7 @@ if __name__ == '__main__':
     seed = 1234
     np.random.seed(seed)
 
-    do_recreate_my_model = False
+    do_recreate_my_model = True
     do_test_run = utils.is_local_run()
 
     batch_size = 8
@@ -250,15 +250,15 @@ if __name__ == '__main__':
     init_steps = 500
 
     trainer_args = Seq2SeqTrainingArguments(
-        output_dir=constants.OUTPUT_DIR,  # output directory
-        logging_dir=constants.LOGS_DIR,  # directory for storing logs
-        num_train_epochs=100,  # total # of training epochs
+        output_dir=constants.OUTPUT_DIR,         # output directory
+        logging_dir=constants.LOGS_DIR,          # directory for storing logs
+        num_train_epochs=100,                    # total # of training epochs
         # max_steps=init_steps,
         per_device_train_batch_size=batch_size,  # batch size per device during training
-        per_device_eval_batch_size=batch_size,  # batch size for evaluation
-        warmup_steps=init_steps,    # number of warmup steps for learning rate scheduler
+        per_device_eval_batch_size=batch_size,   # batch size for evaluation
+        warmup_steps=init_steps,                 # number of warmup steps for learning rate scheduler
         learning_rate=1e-3,
-        weight_decay=0.001,  # strength of weight decay
+        weight_decay=0.001,                      # strength of weight decay
         predict_with_generate=True,
         # sortish_sampler=True,
         do_eval=True,
@@ -272,25 +272,8 @@ if __name__ == '__main__':
         seed=seed,
     )
 
-    # # round 1 -- train embeddings only
-    # freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=True)
-    # trainer = Seq2SeqTrainer(
-    #     model=my_model,
-    #     args=trainer_args,
-    #     train_dataset=ds_train,
-    #     eval_dataset=ds_valid,
-    #     tokenizer=tok,
-    #     data_collator=data_collator,
-    #     compute_metrics=compute_metrics,
-    # )
-    # train_out = trainer.train()
-    # print(train_out)
-    # unfreeze_weights(my_model)
-
-    # round 2 -- train all weights
-    trainer_args.max_steps = -1
-    trainer_args.num_train_epochs = 1
-    trainer_args.learning_rate = 1e-4
+    # round 1 -- train embeddings only
+    freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=True)
     trainer = Seq2SeqTrainer(
         model=my_model,
         args=trainer_args,
@@ -303,26 +286,44 @@ if __name__ == '__main__':
     train_out = trainer.train()
     print(train_out)
 
-    eval_out = trainer.evaluate(
-        eval_dataset=ds_valid,
-        max_length=40,
-        num_beams=num_beams,
-    )
-    print(eval_out)
-
-    num_preds = 10
-
-    predict_out = trainer.predict(
-        test_dataset=ds_valid[:num_preds],
-        max_length=40,
-        num_beams=num_beams,
-        # ignore_keys=[constants.DataNames.DECODER_INPUT_IDS, ]
-    )
-    print(predict_out)
-
-    with tok.as_target_tokenizer():
-        preds = tok.batch_decode(predict_out.predictions)
-
-    print('Predictions:')
-    for meta, pred_str, pred_tokens in zip(ds_valid.meta, preds, predict_out.predictions):
-        print(meta['letters'], pred_str[:30], pred_tokens[:10])
+    # unfreeze_weights(my_model)
+    #
+    # # round 2 -- train all weights
+    # trainer_args.max_steps = -1
+    # trainer_args.num_train_epochs = 1
+    # trainer_args.learning_rate = 1e-4
+    # trainer = Seq2SeqTrainer(
+    #     model=my_model,
+    #     args=trainer_args,
+    #     train_dataset=ds_train,
+    #     eval_dataset=ds_valid,
+    #     tokenizer=tok,
+    #     data_collator=data_collator,
+    #     compute_metrics=compute_metrics,
+    # )
+    # train_out = trainer.train()
+    # print(train_out)
+    #
+    # eval_out = trainer.evaluate(
+    #     eval_dataset=ds_valid,
+    #     max_length=40,
+    #     num_beams=num_beams,
+    # )
+    # print(eval_out)
+    #
+    # num_preds = 10
+    #
+    # predict_out = trainer.predict(
+    #     test_dataset=ds_valid[:num_preds],
+    #     max_length=40,
+    #     num_beams=num_beams,
+    #     # ignore_keys=[constants.DataNames.DECODER_INPUT_IDS, ]
+    # )
+    # print(predict_out)
+    #
+    # with tok.as_target_tokenizer():
+    #     preds = tok.batch_decode(predict_out.predictions)
+    #
+    # print('Predictions:')
+    # for meta, pred_str, pred_tokens in zip(ds_valid.meta, preds, predict_out.predictions):
+    #     print(meta['letters'], pred_str[:30], pred_tokens[:10])
