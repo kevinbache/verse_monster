@@ -3,9 +3,7 @@ from pathlib import Path
 from typing import *
 
 from contextlib2 import contextmanager
-from transformers import PreTrainedTokenizer, BatchEncoding, TensorType
-from transformers.file_utils import PaddingStrategy
-from transformers.tokenization_utils_base import EncodedInput
+from transformers import PreTrainedTokenizer
 
 from verse_monster import utils, constants
 
@@ -23,14 +21,28 @@ class CharPhonemeTokenizer(PreTrainedTokenizer):
 
     def __init__(
             self,
+            bos_token=_bos_token,
+            pad_token=_pad_token,
+            sep_token=_sep_token,
+            unk_token=_unk_token,
             **kwargs
     ):
-        kwargs['model_input_names'] = \
-            ['input_ids', 'attention_mask', 'decoder_input_ids', 'decoder_attention_mask', 'labels']
+        kwargs['model_input_names'] = [
+            constants.DataNames.INPUT_IDS,
+            constants.DataNames.ATTENTION_MASK,
+            constants.DataNames.LABELS,
+            # constants.DataNames.DECODER_INPUT_IDS,
+            # constants.DataNames.DECODER_ATTENTION_MASK,
+        ]
 
         super().__init__(**kwargs)
 
         self.langs = ['en-char', 'en-phoneme']
+
+        self._bos_token = bos_token
+        self._pad_token = pad_token
+        self._sep_token = sep_token
+        self._unk_token = unk_token
 
         # taken from FSMT
         specials = {
@@ -89,14 +101,7 @@ class CharPhonemeTokenizer(PreTrainedTokenizer):
     def tgt_vocab_size(self) -> int:
         return len(self.tgt_tok_2_id)
 
-    # def prepare_for_tokenization(
-    #     self, text: str, is_split_into_words: bool = False, **kwargs
-    # ) -> Tuple[str, Dict[str, Any]]:
-    #     # self.use_src_lang: bool = kwargs.pop('use_src_lang')
-    #     return text, kwargs
-
     def _tokenize(self, text: str, **kwargs):
-        # print(f'_tokenize: self.use_src_lang: {self.use_src_lang}')
         if self.use_src_lang:
             text = [c for c in text]
         else:
@@ -146,7 +151,7 @@ if __name__ == '__main__':
     # print(tok.build_inputs_with_special_tokens(src, 'ah0 b ey1 t'))
     out = tok.prepare_seq2seq_batch([src], [tgt], use_src_lang=True)
     print(out)
-    print(len(out['labels'][0]))
+    print(len(out[constants.DataNames.LABELS][0]))
 
 
 

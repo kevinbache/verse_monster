@@ -65,7 +65,7 @@ def cmu_dict_2_csv():
     print(len(all_phonemes), all_phonemes)
 
 
-class ListDataset(IterableDataset):
+class ListMetaDataset(IterableDataset):
     def __init__(self, list_of_datapoints: List[Dict[str, Any]], list_of_meta: List[Dict[str, Any]]):
         super().__init__()
         assert (len(list_of_datapoints) == len(list_of_meta))
@@ -80,6 +80,12 @@ class ListDataset(IterableDataset):
 
     def __iter__(self):
         return iter(self.data)
+
+    def copy(self, num_datapoints: int):
+        return self.__class__(
+            list_of_datapoints=copy.deepcopy(self.data[:num_datapoints]),
+            list_of_meta=copy.deepcopy(self.meta[:num_datapoints]),
+        )
 
 
 if __name__ == '__main__':
@@ -110,22 +116,12 @@ if __name__ == '__main__':
         datapoints = []
         metas = []
         for ind, row in df.iterrows():
-            d = copy.copy(row['letters_tok'])
-            for k in row['phonemes_tok']:
-                d[f'decoder_{k}'] = row['phonemes_tok'][k]
+            dp = row['letters_tok']
+            dp[constants.DataNames.LABELS] = row['phonemes_tok'][constants.DataNames.INPUT_IDS]
+            for k in dp:
+                dp[k] = dp[k].squeeze()
 
-            for k in d:
-                d[k] = d[k].squeeze()
-
-            # preparing for seq2seq teacher forcing
-            # for output sentence ['tok1', 'tok2'] -->
-            #   d['decoder_input_ids'] = ['<s>', 'tok1', 'tok2']
-            #   d['labels'] = ['tok1', 'tok2', '</s>']
-            d['labels'] = d['decoder_input_ids']
-            d['decoder_input_ids'] = torch.cat([torch.tensor([tok.BOS_ID]), d['decoder_input_ids']])
-            d['decoder_input_ids'] = d['decoder_input_ids'][:-1]
-
-            datapoints.append(d)
+            datapoints.append(dp)
             metas.append({
                 'index': ind,
                 'letters': row['letters'],
@@ -134,6 +130,8 @@ if __name__ == '__main__':
 
         print(f'len(datapoints): {len(datapoints)}')
         print(f'len(metas): {len(metas)}')
+        print(datapoints[0])
+        print(metas[0])
 
     # pd.set_option('display.max_columns', 10)
     # pd.set_option('display.width', 200)
@@ -173,16 +171,19 @@ if __name__ == '__main__':
         test, test_meta = zip(*test)
         print('flattend/inverted lens: ', len(train), len(valid), len(test))
 
-    ds_train = ListDataset(train, train_meta)
+    ds_train = ListMetaDataset(train, train_meta)
     del train, train_meta
-    ds_valid = ListDataset(valid, valid_meta)
+    ds_valid = ListMetaDataset(valid, valid_meta)
     del valid, valid_meta
-    ds_test = ListDataset(test, test_meta)
+    ds_test = ListMetaDataset(test, test_meta)
     del test, test_meta
+
+    ds_tiny = ds_train.copy(10)
 
     with utils.Timer('saving...'):
         utils.save_cloudpickle(ds_train, constants.TRAIN_DATASET)
         utils.save_cloudpickle(ds_valid, constants.VALID_DATASET)
         utils.save_cloudpickle(ds_test, constants.TEST_DATASET)
+        utils.save_cloudpickle(ds_tiny, constants.TINY_DATASET)
 
     print('done')

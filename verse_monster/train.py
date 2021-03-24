@@ -128,15 +128,6 @@ def limit_datset(ds, num_datapoints):
 WEIGHTS_MODEL_NAME = 'facebook/wmt19-en-ru'
 
 
-def make_causal_mask(tgt_len, causal_mask_dtype=torch.float32):
-    # return modeling_fsmt.triu_onnx(modeling_fsmt.fill_with_neg_inf(torch.zeros(tgt_len, tgt_len)), 1).to(
-    #     dtype=causal_mask_dtype, device=device
-    # )
-    return modeling_fsmt.triu_onnx(modeling_fsmt.fill_with_neg_inf(torch.zeros(tgt_len, tgt_len)), 1).to(
-        dtype=causal_mask_dtype,
-    )
-
-
 def prep_dataset(dataset, keys_to_remove, num_datapoints_to_keep):
     if dataset is None:
         return dataset
@@ -204,10 +195,6 @@ if __name__ == '__main__':
             attn_weights 2
             torch.Size([112, 8, 8])
             """
-
-            # ds_tiny = ds_valid[:10]
-            # utils.save_cloudpickle(ds_tiny, constants.TINY_DATASET)
-            # raise ValueError('')
 
     with utils.Timer('loading CharPhonemeTokenizer'):
         tok = tokenizer.CharPhonemeTokenizer()
@@ -304,7 +291,7 @@ if __name__ == '__main__':
         test_dataset=ds_valid[:num_preds],
         max_length=40,
         num_beams=num_beams,
-        ignore_keys=['decoder_input_ids,', ]
+        # ignore_keys=[constants.DataNames.DECODER_INPUT_IDS, ]
     )
     print(predict_out)
 

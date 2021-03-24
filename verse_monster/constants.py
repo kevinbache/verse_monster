@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from pathlib import Path
 
 MAIN_DIR = Path(__file__).parent
@@ -22,8 +24,20 @@ PHONEMES_YAML = DATA_DIR / 'phonemes.yaml'
 LETTERS_VOCAB_DICT = DATA_DIR / 'letters_vocab_dict.yaml'
 PHONEMES_VOCAB_DICT = DATA_DIR / 'phonemes_vocab_dict.yaml'
 
+# datapoint field names
+
+
+class DataNames:
+    LABELS = 'labels'
+    INPUT_IDS = 'input_ids'
+    ATTENTION_MASK = 'attention_mask'
+    DECODER_INPUT_IDS = 'decoder_input_ids'
+    DECODER_ATTENTION_MASK = 'decoder_attention_mask'
+
 
 if __name__ == '__main__':
     print(MAIN_DIR)
     print(PACKAGE_DIR)
     print()
+
+
