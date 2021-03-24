@@ -99,14 +99,7 @@ class MySeq2SeqCollator:
         # list of dicts --> dict of lists
         batch = {key: [dp[key] for dp in batch] for key in batch[0].keys()}
 
-        label_lens = [len(l) for l in batch[constants.DataNames.LABELS]]
-        max_len = max(label_lens)
-
-        labels = batch[constants.DataNames.LABELS]
-        print(f'labels: {labels}')
-        print(f'type(labels): {type(labels)}')
-        masks = [make_padded_causal_mask(len(l), max_len).unsqueeze(0) for l in labels]
-        decoder_attention_mask = torch.cat(masks, dim=0)
+        decoder_attention_mask = self.make_decoder_attention_masks(batch)
 
         for k in batch:
             batch[k] = self._pad_1d(batch[k], pad_token_id=self.label_pad_token_id)
@@ -115,10 +108,21 @@ class MySeq2SeqCollator:
 
         # prepare decoder_input_ids
         if self.model is not None and hasattr(self.model, "prepare_decoder_input_ids_from_labels"):
-            decoder_input_ids = self.model.prepare_decoder_input_ids_from_labels(labels=torch.tensor(labels))
+            labels = batch[constants.DataNames.LABELS]
+            decoder_input_ids = self.model.prepare_decoder_input_ids_from_labels(labels=labels)
             batch[constants.DataNames.DECODER_INPUT_IDS] = decoder_input_ids
 
         return batch
+
+    def make_decoder_attention_masks(self, batch):
+        labels = batch[constants.DataNames.LABELS]
+        print(f'labels: {labels}')
+        print(f'type(labels): {type(labels)}')
+        label_lens = [len(l) for l in labels]
+        max_len = max(label_lens)
+        masks = [make_padded_causal_mask(len(l), max_len).unsqueeze(0) for l in labels]
+        decoder_attention_mask = torch.cat(masks, dim=0)
+        return decoder_attention_mask
 
     def convert_tokens_to_ids(self, tokens):
         self.tokenizer.convert_tokens_to_ids(tokens)
