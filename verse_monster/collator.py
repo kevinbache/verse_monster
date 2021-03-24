@@ -60,6 +60,7 @@ class MySeq2SeqCollator:
     ):
         max_label_length = max(len(l) for l in datapoints)
         for i, datapoint in enumerate(datapoints):
+            print(' ')
             print('pad: ', pad_token_id)
             print('max: ', max_label_length)
             print('dp:  ', datapoint)
@@ -76,7 +77,7 @@ class MySeq2SeqCollator:
         data = {key: [dp[key] for dp in data] for key in data[0].keys()}
 
         for k in data:
-            data[k] = self._pad(data[k], pad_token_id=self.tokenizer.pad_token_id)
+            data[k] = self._pad(data[k], padding_side='right', pad_token_id=self.tokenizer.pad_token_id)
 
         return data
 
