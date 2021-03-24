@@ -9,10 +9,11 @@ from torch.utils.data import TensorDataset, Dataset, IterableDataset
 from verse_monster import constants, utils, tokenizer
 
 
-def cmu_dict_2_csv():
-    DROP_IF_STARTS_WITH = [';;;', '"""', '!', '"', '(', ')', '#', '%', '&', '+', '-', '.', '/', ':', ';', '?', '{', '}']
-    DROP_IF_CONTAINS = ['_', '�', ',']
+DROP_IF_STARTS_WITH = [';;;', '"""', '!', '"', '(', ')', '#', '%', '&', '+', '-', '.', '/', ':', ';', '?', '{', '}']
+DROP_IF_CONTAINS = ['_', '�', ',']
 
+
+def cmu_dict_2_csv():
     rows = []
     all_letters = set()
     all_phonemes = set()
@@ -183,7 +184,5 @@ if __name__ == '__main__':
         utils.save_cloudpickle(ds_train, constants.TRAIN_DATASET)
         utils.save_cloudpickle(ds_valid, constants.VALID_DATASET)
         utils.save_cloudpickle(ds_test, constants.TEST_DATASET)
-
-    
 
     print('done')

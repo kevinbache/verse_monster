@@ -272,6 +272,9 @@ if __name__ == '__main__':
     predict_out = trainer.predict(test_dataset=ds_tiny if do_test_run else ds_valid, max_length=40, num_beams=num_beams)
     print(predict_out)
 
-    print('Predictions:')
     with tok.as_target_tokenizer():
-        print(tok.batch_decode(predict_out.predictions))
+        preds = tok.batch_decode(predict_out.predictions)
+
+    print('Predictions:')
+    for pred in preds:
+        print(pred)
