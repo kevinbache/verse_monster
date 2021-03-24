@@ -3,8 +3,7 @@ from collections import defaultdict
 from typing import List, Dict, Any
 
 import pandas as pd
-import torch
-from torch.utils.data import TensorDataset, Dataset, IterableDataset
+from torch.utils.data import IterableDataset
 
 from verse_monster import constants, utils, tokenizer
 
@@ -100,13 +99,11 @@ if __name__ == '__main__':
     with utils.Timer('reading, applying'):
         df = pd.read_csv(constants.CMU_CSV)
         df['letters_tok'] = \
-            df['letters'].apply(
-                lambda x: tok(str(x), return_token_type_ids=False, return_tensors='pt'))
+            df['letters'].apply(lambda x: tok(str(x), return_token_type_ids=False, return_tensors='pt'))
 
         with tok.as_target_tokenizer():
             df['phonemes_tok'] = \
-                df['phonemes'].apply(
-                    lambda x: tok(str(x), return_token_type_ids=False, return_tensors='pt'))
+                df['phonemes'].apply(lambda x: tok(str(x), return_token_type_ids=False, return_tensors='pt'))
 
         print('letters_tok: ', df['letters_tok'].iloc[0])
         print('phonemes_tok: ', df['phonemes_tok'].iloc[0])

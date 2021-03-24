@@ -134,11 +134,11 @@ def prep_dataset(dataset, keys_to_remove, num_datapoints_to_keep):
     dataset = limit_datset(dataset, num_datapoints_to_keep)
     remove_keys(dataset, keys_to_remove)
     # bos_tensor = torch.tensor([tokenizer.CharPhonemeTokenizer.BOS_ID], dtype=torch.int)
-    for dp in dataset:
-        # print(f'prep dp: {dp}')
-        dp['decoder_attention_mask'] = make_causal_mask(len(dp['decoder_attention_mask']))
-        # dp['labels'] = torch.cat([bos_tensor, dp['labels']])
-    print(f'pos prep dp: {dp}')
+    # for dp in dataset:
+    #     # print(f'prep dp: {dp}')
+    #     dp['decoder_attention_mask'] = make_causal_mask(len(dp['decoder_attention_mask']))
+    #     # dp['labels'] = torch.cat([bos_tensor, dp['labels']])
+    # print(f'pos prep dp: {dp}')
     return dataset
 
 
@@ -165,6 +165,7 @@ if __name__ == '__main__':
             ds_tiny = utils.load_cloudpickle(constants.TINY_DATASET)
             ds_train = ds_tiny
             ds_valid = ds_tiny
+            ds_test = ds_tiny
     else:
         with utils.Timer('loading datasets'):
             # noinspection PyRedeclaration
