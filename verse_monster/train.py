@@ -133,8 +133,9 @@ def prep_dataset(dataset, keys_to_remove, num_datapoints_to_keep):
     remove_keys(dataset, keys_to_remove)
     bos_tensor = torch.tensor([tokenizer.CharPhonemeTokenizer.BOS_ID], dtype=torch.int)
     for dp in dataset:
-        print('prep dp: ', dp)
+        print(f'prep dp: {dp}')
         dp['labels'] = torch.cat([bos_tensor, dp['labels']])
+    print(f'pos prep dp: {dp}')
     return dataset
 
 
@@ -142,7 +143,7 @@ if __name__ == '__main__':
     do_recreate_my_model = False
     do_test_run = False
 
-    batch_size = 7
+    batch_size = 8
 
     num_beams = 4
 
