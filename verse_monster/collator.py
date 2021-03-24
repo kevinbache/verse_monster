@@ -99,12 +99,12 @@ class MySeq2SeqCollator:
         # list of dicts --> dict of lists
         batch = {key: [dp[key] for dp in batch] for key in batch[0].keys()}
 
-        decoder_attention_mask = self.make_decoder_attention_masks(batch)
+        # decoder_attention_mask = self.make_decoder_attention_masks(batch)
 
         for k in batch:
             batch[k] = self._pad_1d(batch[k], pad_token_id=self.label_pad_token_id)
 
-        batch['decoder_attention_mask'] = decoder_attention_mask
+        # batch['decoder_attention_mask'] = decoder_attention_mask
 
         # prepare decoder_input_ids
         if self.model is not None and hasattr(self.model, "prepare_decoder_input_ids_from_labels"):
@@ -114,7 +114,8 @@ class MySeq2SeqCollator:
 
         return batch
 
-    def make_decoder_attention_masks(self, batch):
+    @staticmethod
+    def make_decoder_attention_masks(batch):
         labels = batch[constants.DataNames.LABELS]
         print(f'labels: {labels}')
         print(f'type(labels): {type(labels)}')

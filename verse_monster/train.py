@@ -91,7 +91,7 @@ def compute_metrics(eval_preds):
     result = metric.compute(predictions=decoded_preds, references=decoded_labels)
     result = {"bleu": result["score"]}
 
-    prediction_lens = [np.count_nonzero(pred != tok.PAD_ID) for pred in preds]
+    prediction_lens = [np.count_nonzero(pred != constants.INPUTS_PAD_ID) for pred in preds]
     result["gen_len"] = np.mean(prediction_lens)
     result = {k: round(v, 4) for k, v in result.items()}
     return result
@@ -138,8 +138,8 @@ def prep_dataset(dataset, keys_to_remove, num_datapoints_to_keep):
 
 
 if __name__ == '__main__':
-    do_recreate_my_model = False
-    do_test_run = False
+    do_recreate_my_model = True
+    do_test_run = True
 
     batch_size = 8
 
@@ -232,7 +232,7 @@ if __name__ == '__main__':
         tokenizer=tok,
         model=my_model,
         padding='longest',
-        label_pad_token_id=tok.PAD_ID,
+        label_pad_token_id=constants.INPUTS_PAD_ID,
     )
 
     # Metric
