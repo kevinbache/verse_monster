@@ -10,7 +10,7 @@ from transformers import (
     FSMTConfig,
     Seq2SeqTrainingArguments,
     Seq2SeqTrainer,
-    IntervalStrategy, TrainerCallback
+    IntervalStrategy,
 )
 
 from verse_monster import constants, utils, tokenizer
