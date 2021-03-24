@@ -93,9 +93,9 @@ def compute_metrics(eval_preds):
     # Some simple post-processing
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
 
-    candidate_corpus = [['My', 'full', 'pytorch', 'test'], ['Another', 'Sentence']]
-    references_corpus = [[['My', 'full', 'pytorch', 'test'], ['Completely', 'Different']], [['No', 'Match']]]
-    bleu_score(candidate_corpus, references_corpus)
+    # candidate_corpus = [['My', 'full', 'pytorch', 'test'], ['Another', 'Sentence']]
+    # references_corpus = [[['My', 'full', 'pytorch', 'test'], ['Completely', 'Different']], [['No', 'Match']]]
+    # bleu_score(candidate_corpus, references_corpus)
 
     # result = metric.compute(predictions=decoded_preds, references=decoded_labels)
     # result = {"sacrebleu": result["score"]}
