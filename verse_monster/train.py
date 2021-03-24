@@ -13,6 +13,8 @@ from transformers import (
     Seq2SeqTrainer,
     IntervalStrategy,
 )
+from transformers.models.fsmt import modeling_fsmt
+from transformers.models.fsmt.modeling_fsmt import triu_onnx
 
 from verse_monster import constants, utils, tokenizer
 from verse_monster.collator import MySeq2SeqCollator
@@ -126,15 +128,25 @@ def limit_datset(ds, num_datapoints):
 WEIGHTS_MODEL_NAME = 'facebook/wmt19-en-ru'
 
 
+def make_causal_mask(tgt_len, causal_mask_dtype=torch.float32):
+    # return modeling_fsmt.triu_onnx(modeling_fsmt.fill_with_neg_inf(torch.zeros(tgt_len, tgt_len)), 1).to(
+    #     dtype=causal_mask_dtype, device=device
+    # )
+    return modeling_fsmt.triu_onnx(modeling_fsmt.fill_with_neg_inf(torch.zeros(tgt_len, tgt_len)), 1).to(
+        dtype=causal_mask_dtype,
+    )
+
+
 def prep_dataset(dataset, keys_to_remove, num_datapoints_to_keep):
     if dataset is None:
         return dataset
     dataset = limit_datset(dataset, num_datapoints_to_keep)
     remove_keys(dataset, keys_to_remove)
-    bos_tensor = torch.tensor([tokenizer.CharPhonemeTokenizer.BOS_ID], dtype=torch.int)
+    # bos_tensor = torch.tensor([tokenizer.CharPhonemeTokenizer.BOS_ID], dtype=torch.int)
     for dp in dataset:
-        print(f'prep dp: {dp}')
-        dp['labels'] = torch.cat([bos_tensor, dp['labels']])
+        # print(f'prep dp: {dp}')
+        dp['decoder_attention_mask'] = make_causal_mask(len(dp['decoder_attention_mask']))
+        # dp['labels'] = torch.cat([bos_tensor, dp['labels']])
     print(f'pos prep dp: {dp}')
     return dataset
 
@@ -154,7 +166,8 @@ if __name__ == '__main__':
     ds_valid = None
     ds_test = None
 
-    keys_to_remove = ('decoder_attention_mask', 'decoder_input_ids')
+    # keys_to_remove = ('decoder_attention_mask', 'decoder_input_ids')
+    keys_to_remove = ()
 
     if do_test_run:
         with utils.Timer('loading tiny datset'):
