@@ -113,7 +113,7 @@ class MySeq2SeqCollator:
 
         # prepare decoder_input_ids
         if self.model is not None and hasattr(self.model, "prepare_decoder_input_ids_from_labels"):
-            decoder_input_ids = self.model.prepare_decoder_input_ids_from_labels(labels=labels)
+            decoder_input_ids = self.model.prepare_decoder_input_ids_from_labels(labels=torch.tensor(labels))
             batch[constants.DataNames.DECODER_INPUT_IDS] = decoder_input_ids
 
         return batch
