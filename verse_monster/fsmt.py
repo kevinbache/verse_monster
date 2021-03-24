@@ -3,16 +3,51 @@ from transformers.models.fsmt.modeling_fsmt import (
     _CHECKPOINT_FOR_DOC,
     _CONFIG_FOR_DOC,
     _TOKENIZER_FOR_DOC,
-    _prepare_fsmt_decoder_inputs,
+    # _prepare_fsmt_decoder_inputs,
     _reorder_buffer,
 )
+
+
+def shift_tokens_right(input_ids, pad_token_id):
+    """Shift input ids one token to the right, and wrap the last non pad token (usually <eos>)."""
+    prev_output_tokens = input_ids.clone()
+    index_of_eos = (input_ids.ne(pad_token_id).sum(dim=1) - 1).unsqueeze(-1)
+    prev_output_tokens[:, 0] = 0
+    prev_output_tokens[:, 1:] = input_ids[:, :-1]
+    return prev_output_tokens
+
+
+def _prepare_fsmt_decoder_inputs(
+    config,
+    input_ids,
+    decoder_input_ids=None,
+    decoder_padding_mask=None,
+    causal_mask_dtype=torch.float32,
+):
+    """
+    Prepare masks that ignore padding tokens in the decoder and a causal mask for the decoder if none are provided.
+    This mimics the default behavior in fairseq. To override it pass in masks. Note: this is not called during
+    generation
+    """
+    pad_token_id = config.pad_token_id
+    if decoder_input_ids is None:
+        decoder_input_ids = shift_tokens_right(input_ids, pad_token_id)
+    bsz, tgt_len = decoder_input_ids.size()
+    if decoder_padding_mask is None:
+        decoder_padding_mask = make_padding_mask(decoder_input_ids, pad_token_id)
+    else:
+        decoder_padding_mask = invert_mask(decoder_padding_mask)
+    causal_mask = triu_onnx(fill_with_neg_inf(torch.zeros(tgt_len, tgt_len)), 1).to(
+        dtype=causal_mask_dtype, device=decoder_input_ids.device
+    )
+    return decoder_input_ids, decoder_padding_mask, causal_mask
 
 
 @add_start_docstrings(
     "The bare FSMT Model outputting raw hidden-states without any specific head on top.",
     FSMT_START_DOCSTRING,
 )
-class FSMTModel(PretrainedFSMTModel):
+class MyFSMTModel(FSMTModel):
     def __init__(self, config: FSMTConfig):
         super().__init__(config)
 
@@ -69,6 +104,20 @@ class FSMTModel(PretrainedFSMTModel):
         else:
             decoder_padding_mask, causal_mask = None, None
 
+        print()
+        print()
+        print('fsmt.py input_ids:')
+        print(input_ids)
+
+        print('fsmt.py decoder input ids:')
+        print(decoder_input_ids)
+
+        print('fsmt.py causal mask:')
+        print(causal_mask)
+
+        print('fsmt.py decoder_padding_mask:')
+        print(decoder_padding_mask)
+
         assert decoder_input_ids is not None
 
         if encoder_outputs is None:
@@ -104,8 +153,6 @@ class FSMTModel(PretrainedFSMTModel):
             return_dict=return_dict,
         )
 
-
-
         if not return_dict:
             return decoder_outputs + encoder_outputs
 
@@ -136,7 +183,7 @@ class FSMTModel(PretrainedFSMTModel):
 @add_start_docstrings(
     "The FSMT Model with a language modeling head. Can be used for summarization.", FSMT_START_DOCSTRING
 )
-class FSMTForConditionalGeneration(PretrainedFSMTModel):
+class MyFSMTForConditionalGeneration(PretrainedFSMTModel):
     base_model_prefix = "model"
     _keys_to_ignore_on_load_missing = [
         "model.encoder.embed_positions.weight",
@@ -149,10 +196,10 @@ class FSMTForConditionalGeneration(PretrainedFSMTModel):
 
     def __init__(self, config: FSMTConfig):
         super().__init__(config)
-        base_model = FSMTModel(config)
+        base_model = MyFSMTModel(config)
         self.model = base_model
 
-    def resize_token_embeddings(self, new_num_tokens: int) -> nn.Embedding:
+    def resize_token_embeddings(self, new_num_tokens: Optional[int] = None):
         new_embeddings = super().resize_token_embeddings(new_num_tokens)
         self.model.encoder.embed_tokens = new_embeddings
 
@@ -163,7 +210,7 @@ class FSMTForConditionalGeneration(PretrainedFSMTModel):
         # only one return value is expected. Needs to be redesigned in the core to support dual dicts
         raise NotImplementedError("this method needs re-thinking for models with 2 separate dictionaries")
 
-        return new_embeddings
+        # return new_embeddings
 
     @add_start_docstrings_to_model_forward(FSMT_INPUTS_DOCSTRING)
     @replace_return_docstrings(output_type=Seq2SeqLMOutput, config_class=_CONFIG_FOR_DOC)
@@ -216,8 +263,8 @@ class FSMTForConditionalGeneration(PretrainedFSMTModel):
 
         print('fsmt.py')
 
-        print(f'  lm_logits:')
-        print(lm_logits)
+        # print(f'  lm_logits:')
+        # print(lm_logits)
         print(f'  lm_logits shapes: {lm_logits.shape}, {lm_logits.view(-1, self.config.tgt_vocab_size).shape}')
 
         masked_lm_loss = None

@@ -145,8 +145,8 @@ if __name__ == '__main__':
     seed = 1234
     np.random.seed(seed)
 
-    do_recreate_my_model = True
-    do_test_run = False
+    do_recreate_my_model = False
+    do_test_run = utils.is_local_run()
 
     batch_size = 8
 
@@ -181,24 +181,6 @@ if __name__ == '__main__':
             ds_valid = prep_dataset(ds_valid, keys_to_remove, num_valid)
             ds_test = prep_dataset(ds_test, keys_to_remove, num_valid)
 
-            """
-            attn_mask
-            tensor([[0., -inf, -inf, -inf, -inf, -inf, -inf, -inf],
-                    [0., 0., -inf, -inf, -inf, -inf, -inf, -inf],
-                    [0., 0., 0., -inf, -inf, -inf, -inf, -inf],
-                    [0., 0., 0., 0., -inf, -inf, -inf, -inf],
-                    [0., 0., 0., 0., 0., -inf, -inf, -inf],
-                    [0., 0., 0., 0., 0., 0., -inf, -inf],
-                    [0., 0., 0., 0., 0., 0., 0., -inf],
-                    [0., 0., 0., 0., 0., 0., 0., 0.]])
-            torch.Size([8, 8])
-            attn_weights
-            # (batch x nHeads x nDecTokens x nDecTokens)
-            torch.Size([7, 16, 8, 8])
-            attn_weights 2
-            torch.Size([112, 8, 8])
-            """
-
     with utils.Timer('loading CharPhonemeTokenizer'):
         tok = tokenizer.CharPhonemeTokenizer()
 
@@ -212,10 +194,10 @@ if __name__ == '__main__':
 
     if do_recreate_my_model:
         with utils.Timer('loading_enru model'):
-            enru_model = fsmt.FSMTForConditionalGeneration.from_pretrained(WEIGHTS_MODEL_NAME)
+            enru_model = fsmt.MyFSMTForConditionalGeneration.from_pretrained(WEIGHTS_MODEL_NAME)
 
         with utils.Timer('creating my_model from config'):
-            my_model = fsmt.FSMTForConditionalGeneration(FSMTConfig(
+            my_model = fsmt.MyFSMTForConditionalGeneration(FSMTConfig(
                 langs=['en-char', 'en-phoneme'],
                 src_vocab_size=tok.src_vocab_size,
                 tgt_vocab_size=tok.tgt_vocab_size,
@@ -224,6 +206,7 @@ if __name__ == '__main__':
                 encoder_layers=6,
                 decoder_layers=6,
                 encoder_ffn_dim=1024 * 8,
+                pad_token_id=1,
             ))
 
         with utils.Timer('copying and freezing weights'):
@@ -233,7 +216,7 @@ if __name__ == '__main__':
             my_model.save_pretrained(save_directory=constants.MODEL_DIR)
     else:
         with utils.Timer('loading my_model'):
-            my_model = fsmt.FSMTForConditionalGeneration.from_pretrained(constants.MODEL_DIR, local_files_only=True)
+            my_model = fsmt.MyFSMTForConditionalGeneration.from_pretrained(constants.MODEL_DIR, local_files_only=True)
             freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=True)
 
     data_collator = MySeq2SeqCollator(

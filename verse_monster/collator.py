@@ -112,6 +112,14 @@ class MySeq2SeqCollator:
             decoder_input_ids = self.model.prepare_decoder_input_ids_from_labels(labels=labels)
             batch[constants.DataNames.DECODER_INPUT_IDS] = decoder_input_ids
 
+            print('collator created decoder input ids:')
+            print(decoder_input_ids)
+            print()
+
+            print('collator created labels:')
+            print(labels)
+            print()
+
         return batch
 
     @staticmethod

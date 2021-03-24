@@ -1,10 +1,15 @@
 import itertools
+import socket
 import time
 from typing import *
 
 import cloudpickle
 from sklearn.model_selection import train_test_split
 import yaml
+
+
+def is_local_run():
+    return 'macbook' in socket.gethostname().lower()
 
 
 def save_yaml(obj: Any, filename: str):
