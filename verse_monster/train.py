@@ -37,10 +37,10 @@ def copy_weights(from_model: nn.Module, to_model: nn.Module, layer_names_to_skip
 
 
 def freeze_weights(model: nn.Module, layers_to_skip: List[str], do_learn_layer_norms=True, do_print_count=True):
-    for name, param in model.named_parameters(recurse=True):
-        if name in layers_to_skip or (do_learn_layer_norms and 'layer_norm' in name):
-            continue
-        param.requires_grad = False
+    # for name, param in model.named_parameters(recurse=True):
+    #     if name in layers_to_skip or (do_learn_layer_norms and 'layer_norm' in name):
+    #         continue
+    #     param.requires_grad = False
 
     if do_print_count:
         count = sum(param.numel() for param in model.parameters(recurse=True) if param.requires_grad)
