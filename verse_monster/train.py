@@ -163,11 +163,14 @@ if __name__ == '__main__':
     else:
         with utils.Timer('loading datasets'):
             # noinspection PyRedeclaration
-            ds_train = utils.load_cloudpickle(constants.TRAIN_DATASET)
+            # ds_train = utils.load_cloudpickle(constants.TRAIN_DATASET)
             # noinspection PyRedeclaration
             ds_valid = utils.load_cloudpickle(constants.VALID_DATASET)
             # noinspection PyRedeclaration
             # ds_test = utils.load_cloudpickle(constants.TEST_DATASET)
+
+            ds_train = ds_valid[:num_train]
+            ds_valid = ds_valid[num_train:(num_train + num_valid + 1)]
 
             ds_train = prep_dataset(ds_train, keys_to_remove, num_train)
             ds_valid = prep_dataset(ds_valid, keys_to_remove, num_valid)
