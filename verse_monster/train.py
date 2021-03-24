@@ -230,7 +230,7 @@ if __name__ == '__main__':
     trainer_args = Seq2SeqTrainingArguments(
         output_dir=constants.OUTPUT_DIR,          # output directory
         logging_dir=constants.LOGS_DIR,           # directory for storing logs
-        num_train_epochs=4,                       # total # of training epochs
+        num_train_epochs=1,                       # total # of training epochs
         # max_steps=100,
         per_device_train_batch_size=batch_size,   # batch size per device during training
         per_device_eval_batch_size=batch_size,    # batch size for evaluation
