@@ -6,14 +6,14 @@ import numpy as np
 from datasets import load_metric
 from torch import nn
 from transformers import (
-    FSMTForConditionalGeneration,
+    # FSMTForConditionalGeneration,
     FSMTConfig,
     Seq2SeqTrainingArguments,
     Seq2SeqTrainer,
     IntervalStrategy,
 )
 
-from verse_monster import constants, utils, tokenizer
+from verse_monster import constants, utils, tokenizer, fsmt
 from verse_monster.collator import MySeq2SeqCollator
 
 
@@ -210,10 +210,10 @@ if __name__ == '__main__':
 
     if do_recreate_my_model:
         with utils.Timer('loading_enru model'):
-            enru_model = FSMTForConditionalGeneration.from_pretrained(WEIGHTS_MODEL_NAME)
+            enru_model = fsmt.FSMTForConditionalGeneration.from_pretrained(WEIGHTS_MODEL_NAME)
 
         with utils.Timer('creating my_model from config'):
-            my_model = FSMTForConditionalGeneration(FSMTConfig(
+            my_model = fsmt.FSMTForConditionalGeneration(FSMTConfig(
                 langs=['en-char', 'en-phoneme'],
                 src_vocab_size=tok.src_vocab_size,
                 tgt_vocab_size=tok.tgt_vocab_size,
@@ -224,13 +224,14 @@ if __name__ == '__main__':
                 encoder_ffn_dim=1024 * 8,
             ))
 
-        prep_model(my_model, enru_model, layer_names_to_learn, do_learn_layer_norms=True)
+        with utils.Timer('copying and freezing weights'):
+            prep_model(my_model, enru_model, layer_names_to_learn, do_learn_layer_norms=True)
 
         with utils.Timer('saving my_model'):
             my_model.save_pretrained(save_directory=constants.MODEL_DIR)
     else:
-        with utils.Timer('loading model'):
-            my_model = FSMTForConditionalGeneration.from_pretrained(constants.MODEL_DIR, local_files_only=True)
+        with utils.Timer('loading my_model'):
+            my_model = fsmt.FSMTForConditionalGeneration.from_pretrained(constants.MODEL_DIR, local_files_only=True)
             freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=True)
 
     data_collator = MySeq2SeqCollator(
