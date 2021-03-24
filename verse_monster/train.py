@@ -64,7 +64,7 @@ def prep_model(
         verbose=True,
 ):
     copy_weights(model_with_pretrained_weights, my_model, layer_names_to_skip=layer_names_to_learn, verbose=verbose)
-    freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=do_learn_layer_norms)
+    # freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=do_learn_layer_norms)
 
 
 def postprocess_text(preds, labels):
@@ -217,7 +217,7 @@ if __name__ == '__main__':
     else:
         with utils.Timer('loading my_model'):
             my_model = fsmt.MyFSMTForConditionalGeneration.from_pretrained(constants.MODEL_DIR, local_files_only=True)
-            freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=True)
+            # freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=True)
 
     data_collator = MySeq2SeqCollator(
         tokenizer=tok,
@@ -228,28 +228,32 @@ if __name__ == '__main__':
 
     from transformers import SchedulerType, TrainingArguments
 
+    init_steps = 500
+
     trainer_args = Seq2SeqTrainingArguments(
         output_dir=constants.OUTPUT_DIR,  # output directory
         logging_dir=constants.LOGS_DIR,  # directory for storing logs
-        num_train_epochs=2,  # total # of training epochs
-        # max_steps=100,
+        # num_train_epochs=1,  # total # of training epochs
+        max_steps=init_steps,
         per_device_train_batch_size=batch_size,  # batch size per device during training
         per_device_eval_batch_size=batch_size,  # batch size for evaluation
-        warmup_steps=500,    # number of warmup steps for learning rate scheduler
-        learning_rate=1e-4,
+        warmup_steps=init_steps,    # number of warmup steps for learning rate scheduler
+        learning_rate=1e-3,
         weight_decay=0.001,  # strength of weight decay
         predict_with_generate=True,
         sortish_sampler=True,
         do_eval=True,
         do_predict=True,
-        evaluation_strategy=IntervalStrategy.EPOCH,
-        # eval_steps=50,
+        evaluation_strategy=IntervalStrategy.STEPS,
+        eval_steps=500,
         dataloader_num_workers=4,
         report_to=['none'],
         lr_scheduler_type=SchedulerType.CONSTANT_WITH_WARMUP,
         logging_first_step=True,
+        seed=seed,
     )
 
+    freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=True)
     trainer = Seq2SeqTrainer(
         model=my_model,
         args=trainer_args,
@@ -259,11 +263,13 @@ if __name__ == '__main__':
         data_collator=data_collator,
         compute_metrics=compute_metrics,
     )
-
     train_out = trainer.train()
     print(train_out)
 
-
+    unfreeze_weights(my_model)
+    trainer_args.max_steps = None
+    trainer_args.num_train_epochs = 2
+    trainer_args.learning_rate = 1e-5
 
     eval_out = trainer.evaluate(
         eval_dataset=ds_valid,
