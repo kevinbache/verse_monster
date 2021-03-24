@@ -60,6 +60,9 @@ class MySeq2SeqCollator:
     ):
         max_label_length = max(len(l) for l in datapoints)
         for i, datapoint in enumerate(datapoints):
+            print(pad_token_id)
+            print(max_label_length)
+            print(datapoint)
             remainder = torch.tensor([pad_token_id] * (max_label_length - len(datapoint)), dtype=torch.long)
             if padding_side == 'right':
                 order = [datapoint, remainder]
