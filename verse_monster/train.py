@@ -152,8 +152,9 @@ if __name__ == '__main__':
             if num_valid is not None:
                 ds_valid = limit_datset(ds_train, num_valid)
 
+            keys_to_remove = ('decoder_attention_mask', 'decoder_input_ids')
             # keys_to_remove = ('decoder_attention_mask', )
-            keys_to_remove = ()
+            # keys_to_remove = ()
             remove_keys(ds_train, keys_to_remove)
             remove_keys(ds_valid, keys_to_remove)
 
