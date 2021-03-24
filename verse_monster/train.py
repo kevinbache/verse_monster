@@ -143,7 +143,7 @@ if __name__ == '__main__':
     seed = 1234
     np.random.seed(seed)
 
-    do_recreate_my_model = False
+    do_recreate_my_model = True
     do_test_run = False
 
     batch_size = 8
