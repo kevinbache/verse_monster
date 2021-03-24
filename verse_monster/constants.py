@@ -26,7 +26,7 @@ PHONEMES_VOCAB_DICT = DATA_DIR / 'phonemes_vocab_dict.yaml'
 
 # datapoint field names
 
-INPUTS_PAD_ID = -100
+INPUTS_PAD_ID = 1
 
 
 class DataNames:
