@@ -103,6 +103,8 @@ class MySeq2SeqCollator:
         max_len = max(label_lens)
 
         labels = batch[constants.DataNames.LABELS]
+        print(f'labels: {labels}')
+        print(f'type(labels): {type(labels)}')
         masks = [make_padded_causal_mask(len(l), max_len).unsqueeze(0) for l in labels]
         decoder_attention_mask = torch.cat(masks, dim=0)
 
