@@ -106,6 +106,19 @@ def convert_dataset_to_lists(dataset):
     return dataset
 
 
+def remove_keys(dataset, keys_to_remove):
+    dp = {}
+    for dp in dataset:
+        for k in keys_to_remove:
+            if k in dp:
+                # print(f'removing {k}')
+                del dp[k]
+    print(f'dp.keys(): {dp.keys()}')
+
+
+WEIGHTS_MODEL_NAME = 'facebook/wmt19-en-ru'
+
+
 if __name__ == '__main__':
     do_recreate_my_model = False
     do_test_run = False
@@ -120,7 +133,8 @@ if __name__ == '__main__':
     if do_test_run:
         with utils.Timer('loading tiny datset'):
             ds_tiny = utils.load_cloudpickle(constants.TINY_DATASET)
-            # ds_tiny = convert_dataset_to_lists(ds_tiny)
+            ds_train = ds_tiny
+            ds_valid = ds_tiny
     else:
         with utils.Timer('loading datasets'):
             ds_train = utils.load_cloudpickle(constants.TRAIN_DATASET)
@@ -133,6 +147,8 @@ if __name__ == '__main__':
                 ds_valid = ds_valid[:num_valid]
 
             keys_to_remove = ('decoder_attention_mask', )
+            remove_keys(ds_train, keys_to_remove)
+            remove_keys(ds_valid, keys_to_remove)
 
             """
             attn_mask
@@ -152,20 +168,6 @@ if __name__ == '__main__':
             torch.Size([112, 8, 8])
             """
 
-            for dp in ds_train:
-                for k in keys_to_remove:
-                    if k in dp:
-                        print(f'removing {k}')
-                        del dp[k]
-            print(f'dp.keys(): {dp.keys()}')
-
-            for dp in ds_valid:
-                for k in keys_to_remove:
-                    if k in dp:
-                        print(f'removing {k}')
-                        del dp[k]
-            print(f'dp.keys(): {dp.keys()}')
-
             # ds_tiny = ds_valid[:10]
             # utils.save_cloudpickle(ds_tiny, constants.TINY_DATASET)
             # raise ValueError('')
@@ -182,8 +184,6 @@ if __name__ == '__main__':
     ]
 
     if do_recreate_my_model:
-        WEIGHTS_MODEL_NAME = 'facebook/wmt19-en-ru'
-
         with utils.Timer('loading_enru model'):
             enru_model = FSMTForConditionalGeneration.from_pretrained(WEIGHTS_MODEL_NAME)
 
@@ -252,8 +252,8 @@ if __name__ == '__main__':
     trainer = Seq2SeqTrainer(
         model=my_model,
         args=trainer_args,
-        train_dataset=ds_tiny if do_test_run else ds_train,
-        eval_dataset=ds_tiny if do_test_run else ds_valid,
+        train_dataset=ds_train,
+        eval_dataset=ds_valid,
         tokenizer=tok,
         data_collator=data_collator,
         compute_metrics=compute_metrics,
@@ -263,18 +263,18 @@ if __name__ == '__main__':
     # print(train_out)
 
     eval_out = trainer.evaluate(
-        eval_dataset=ds_tiny if do_test_run else ds_valid,
+        eval_dataset=ds_valid,
         max_length=40,
         num_beams=num_beams,
     )
     print(eval_out)
 
-    predict_out = trainer.predict(test_dataset=ds_tiny if do_test_run else ds_valid, max_length=40, num_beams=num_beams)
+    predict_out = trainer.predict(test_dataset=ds_valid, max_length=40, num_beams=num_beams)
     print(predict_out)
 
     with tok.as_target_tokenizer():
         preds = tok.batch_decode(predict_out.predictions)
 
     print('Predictions:')
-    for pred in preds:
+    for pred in zip(preds:
         print(pred)
