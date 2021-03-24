@@ -13,6 +13,8 @@ class MySeq2SeqCollator:
     """
     Based on DataCollatorForSeq2Seq but far simpler because it just targets our particular use case.
 
+
+
     Data collator that will dynamically pad the inputs received, as well as the labels.
 
     Args:
@@ -49,7 +51,7 @@ class MySeq2SeqCollator:
     padding: Union[bool, str, PaddingStrategy] = True
     max_length: Optional[int] = None
     pad_to_multiple_of: Optional[int] = None
-    label_pad_token_id: int = -100
+    label_pad_token_id: int = 1
 
     @classmethod
     def _pad(
@@ -77,7 +79,7 @@ class MySeq2SeqCollator:
         data = {key: [dp[key] for dp in data] for key in data[0].keys()}
 
         for k in data:
-            data[k] = self._pad(data[k], padding_side='right', pad_token_id=self.tokenizer.pad_token_id)
+            data[k] = self._pad(data[k], padding_side='right', pad_token_id=1)
 
         return data
 
