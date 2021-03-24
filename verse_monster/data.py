@@ -117,7 +117,7 @@ if __name__ == '__main__':
             dp = row['letters_tok']
             dp[constants.DataNames.LABELS] = row['phonemes_tok'][constants.DataNames.INPUT_IDS]
             for k in dp:
-                dp[k] = torch.tensor(dp[k].squeeze())
+                dp[k] = dp[k].squeeze()
 
             datapoints.append(dp)
             metas.append({
