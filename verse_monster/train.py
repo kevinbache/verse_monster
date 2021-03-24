@@ -3,6 +3,7 @@ import logging
 from typing import *
 
 import numpy as np
+import torch
 from datasets import load_metric
 from torch import nn
 from transformers import (
@@ -126,13 +127,13 @@ WEIGHTS_MODEL_NAME = 'facebook/wmt19-en-ru'
 
 
 def prep_dataset(dataset, keys_to_remove, num_datapoints_to_keep):
-    if dataset is None
+    if dataset is None:
         return dataset
     dataset = limit_datset(dataset, num_datapoints_to_keep)
     remove_keys(dataset, keys_to_remove)
     for dp in dataset:
         print('prep dp: ', dp)
-        # dp['target'] =
+        dp['target'] = torch.cat([tokenizer.CharPhonemeTokenizer.bos_token_id, dp['target']])
     return dataset
 
 
