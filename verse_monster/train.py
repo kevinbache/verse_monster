@@ -247,14 +247,6 @@ if __name__ == '__main__':
         logging_first_step=True,
     )
 
-    # class PredictionsCallback(TrainerCallback):
-    #
-    #
-    #
-    # callbacks = [
-    #     preds_callback
-    # ]
-
     trainer = Seq2SeqTrainer(
         model=my_model,
         args=trainer_args,
@@ -265,8 +257,8 @@ if __name__ == '__main__':
         compute_metrics=compute_metrics,
     )
 
-    # train_out = trainer.train()
-    # print(train_out)
+    train_out = trainer.train()
+    print(train_out)
 
     eval_out = trainer.evaluate(
         eval_dataset=ds_valid,
@@ -287,5 +279,5 @@ if __name__ == '__main__':
         preds = tok.batch_decode(predict_out.predictions)
 
     print('Predictions:')
-    for dp, pred in zip(ds_valid, preds):
-        print(dp[''], pred)
+    for meta, pred in zip(ds_valid.meta, preds):
+        print(meta['letters'], pred)
