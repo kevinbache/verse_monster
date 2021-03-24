@@ -107,7 +107,7 @@ def convert_dataset_to_lists(dataset):
 
 
 if __name__ == '__main__':
-    do_recreate_my_model = False
+    do_recreate_my_model = True
     do_test_run = False
 
     batch_size = 7
@@ -119,12 +119,12 @@ if __name__ == '__main__':
     if do_test_run:
         with utils.Timer('loading tiny datset'):
             ds_tiny = utils.load_cloudpickle(constants.TINY_DATASET)
-
             # ds_tiny = convert_dataset_to_lists(ds_tiny)
     else:
         with utils.Timer('loading datasets'):
             ds_train = utils.load_cloudpickle(constants.TRAIN_DATASET)
             ds_valid = utils.load_cloudpickle(constants.VALID_DATASET)
+            # ds_test = utils.load_cloudpickle(constants.TEST_DATASET)
 
             if num_train is not None:
                 ds_train = ds_valid[:num_train]
@@ -132,6 +132,24 @@ if __name__ == '__main__':
                 ds_valid = ds_valid[:num_valid]
 
             keys_to_remove = ('decoder_attention_mask', )
+
+            """
+            attn_mask
+            tensor([[0., -inf, -inf, -inf, -inf, -inf, -inf, -inf],
+                    [0., 0., -inf, -inf, -inf, -inf, -inf, -inf],
+                    [0., 0., 0., -inf, -inf, -inf, -inf, -inf],
+                    [0., 0., 0., 0., -inf, -inf, -inf, -inf],
+                    [0., 0., 0., 0., 0., -inf, -inf, -inf],
+                    [0., 0., 0., 0., 0., 0., -inf, -inf],
+                    [0., 0., 0., 0., 0., 0., 0., -inf],
+                    [0., 0., 0., 0., 0., 0., 0., 0.]])
+            torch.Size([8, 8])
+            attn_weights
+            # (batch x nHeads x nDecTokens x nDecTokens)
+            torch.Size([7, 16, 8, 8])
+            attn_weights 2
+            torch.Size([112, 8, 8])
+            """
 
             for dp in ds_train:
                 for k in keys_to_remove:
@@ -147,11 +165,9 @@ if __name__ == '__main__':
                         del dp[k]
             print(f'dp.keys(): {dp.keys()}')
 
-            # ds_test = utils.load_cloudpickle(constants.TEST_DATASET)
-
-            # ds_tiny = ds_valid[:10]
-            # utils.save_cloudpickle(ds_tiny, constants.TINY_DATASET)
-            # raise ValueError('')
+            ds_tiny = ds_valid[:10]
+            utils.save_cloudpickle(ds_tiny, constants.TINY_DATASET)
+            raise ValueError('')
 
     with utils.Timer('loading CharPhonemeTokenizer'):
         tok = tokenizer.CharPhonemeTokenizer()
@@ -232,14 +248,15 @@ if __name__ == '__main__':
         compute_metrics=compute_metrics,
     )
 
-    train_out = trainer.train()
-    print(train_out)
+    # train_out = trainer.train()
+    # print(train_out)
 
-    # eval_out = trainer.evaluate(
-    #     eval_dataset=ds_tiny if do_test_run else ds_valid,
-    #     num_beams=num_beams,
-    # )
-    # print(eval_out)
+    eval_out = trainer.evaluate(
+        eval_dataset=ds_tiny if do_test_run else ds_valid,
+        max_length=40,
+        num_beams=num_beams,
+    )
+    print(eval_out)
 
     predict_out = trainer.predict(test_dataset=ds_tiny if do_test_run else ds_valid, max_length=40, num_beams=num_beams)
     print(predict_out)
