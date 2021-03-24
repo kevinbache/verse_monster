@@ -56,7 +56,7 @@ class MySeq2SeqCollator:
             cls,
             datapoints: List[torch.Tensor],
             padding_side: str = 'right',
-            pad_token_id: int = label_pad_token_id,
+            pad_token_id: int = 1,
     ):
         max_label_length = max(len(l) for l in datapoints)
         for i, datapoint in enumerate(datapoints):
