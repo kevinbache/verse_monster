@@ -47,6 +47,8 @@ setup(
         'sacrebleu',
         'scikit-learn',
         'cloudpickle',
+        'torchtext',
+        'torch',
     ],
 
     classifiers=[

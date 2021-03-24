@@ -12,6 +12,7 @@ from transformers import (
     Seq2SeqTrainer,
     IntervalStrategy,
 )
+from torchtext.data.metrics import bleu_score
 
 from verse_monster import constants, utils, tokenizer, fsmt
 from verse_monster.collator import MySeq2SeqCollator
@@ -74,7 +75,7 @@ def postprocess_text(preds, labels):
     return preds, labels
 
 
-# Metric
+# # Metric
 metric = load_metric("sacrebleu")
 
 
@@ -92,12 +93,20 @@ def compute_metrics(eval_preds):
     # Some simple post-processing
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
 
-    result = metric.compute(predictions=decoded_preds, references=decoded_labels)
-    result = {"bleu": result["score"]}
+    candidate_corpus = [['My', 'full', 'pytorch', 'test'], ['Another', 'Sentence']]
+    references_corpus = [[['My', 'full', 'pytorch', 'test'], ['Completely', 'Different']], [['No', 'Match']]]
+    bleu_score(candidate_corpus, references_corpus)
 
+    # result = metric.compute(predictions=decoded_preds, references=decoded_labels)
+    # result = {"sacrebleu": result["score"]}
     prediction_lens = [np.count_nonzero(pred != constants.INPUTS_PAD_ID) for pred in preds]
-    result["gen_len"] = np.mean(prediction_lens)
-    result = {k: round(v, 4) for k, v in result.items()}
+
+    result = {
+        'bleu': bleu_score(candidate_corpus=decoded_preds, references_corpus=decoded_labels),
+        'gen_len': np.mean(prediction_lens),
+    }
+
+    result = {k: round(v, 3) for k, v in result.items()}
     return result
 
 
