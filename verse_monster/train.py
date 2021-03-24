@@ -69,8 +69,8 @@ def prep_model(
 
 
 def postprocess_text(preds, labels):
-    preds = [pred.strip().split() for pred in preds if pred]
-    labels = [[label.strip().split()] for label in labels if label]
+    preds = [pred.strip() for pred in preds if pred]
+    labels = [[label.strip()] for label in labels if label]
 
     return preds, labels
 
@@ -108,6 +108,9 @@ def compute_metrics(eval_preds):
     result = {
         "sacrebleu": metric.compute(predictions=decoded_preds, references=decoded_labels)['score'],
     }
+
+    decoded_preds = [e.split() for e in decoded_preds]
+    decoded_labels = [[e[0].split()] for e in decoded_preds]
 
     prediction_lens = [np.count_nonzero(pred != constants.INPUTS_PAD_ID) for pred in preds]
     result['bleu'] = bleu_score(candidate_corpus=decoded_preds, references_corpus=decoded_labels)
