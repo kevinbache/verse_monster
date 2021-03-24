@@ -5,6 +5,10 @@ import torch
 from transformers import PreTrainedTokenizerBase, PreTrainedModel, BatchEncoding
 from transformers.file_utils import PaddingStrategy
 
+from verse_monster import tokenizer
+
+
+
 
 @dataclass
 class MySeq2SeqCollator:
@@ -47,7 +51,7 @@ class MySeq2SeqCollator:
     padding: Union[bool, str, PaddingStrategy] = True
     max_length: Optional[int] = None
     pad_to_multiple_of: Optional[int] = None
-    label_pad_token_id: int = -100
+    label_pad_token_id: int = tokenizer.CharPhonemeTokenizer.pad_token_id
 
     @classmethod
     def _pad(

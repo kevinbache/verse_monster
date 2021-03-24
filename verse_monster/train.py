@@ -10,7 +10,7 @@ from transformers import (
     FSMTConfig,
     Seq2SeqTrainingArguments,
     Seq2SeqTrainer,
-    IntervalStrategy
+    IntervalStrategy, TrainerCallback
 )
 
 from verse_monster import constants, utils, tokenizer
@@ -110,7 +110,8 @@ if __name__ == '__main__':
     do_recreate_my_model = True
     do_test_run = False
 
-    batch_size = 7
+    batch_size = 8
+
     num_beams = 4
 
     num_train = 1000
@@ -216,11 +217,11 @@ if __name__ == '__main__':
     # Metric
     metric = load_metric("sacrebleu")
 
-    from transformers import SchedulerType
+    from transformers import SchedulerType, TrainingArguments
     trainer_args = Seq2SeqTrainingArguments(
         output_dir=constants.OUTPUT_DIR,          # output directory
         logging_dir=constants.LOGS_DIR,           # directory for storing logs
-        num_train_epochs=1,                       # total # of training epochs
+        num_train_epochs=4,                       # total # of training epochs
         # max_steps=100,
         per_device_train_batch_size=batch_size,   # batch size per device during training
         per_device_eval_batch_size=batch_size,    # batch size for evaluation
@@ -236,7 +237,16 @@ if __name__ == '__main__':
         dataloader_num_workers=4,
         report_to=['none'],
         lr_scheduler_type=SchedulerType.CONSTANT_WITH_WARMUP,
+        logging_first_step=True,
     )
+
+    # class PredictionsCallback(TrainerCallback):
+    #
+    #
+    #
+    # callbacks = [
+    #     preds_callback
+    # ]
 
     trainer = Seq2SeqTrainer(
         model=my_model,
