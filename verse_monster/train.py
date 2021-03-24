@@ -253,6 +253,7 @@ if __name__ == '__main__':
         seed=seed,
     )
 
+    # round 1 -- train embeddings only
     freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=True)
     trainer = Seq2SeqTrainer(
         model=my_model,
@@ -266,10 +267,23 @@ if __name__ == '__main__':
     train_out = trainer.train()
     print(train_out)
 
+    # round 2 -- train all weights
     unfreeze_weights(my_model)
     trainer_args.max_steps = None
     trainer_args.num_train_epochs = 2
     trainer_args.learning_rate = 1e-5
+    trainer = Seq2SeqTrainer(
+        model=my_model,
+        args=trainer_args,
+        train_dataset=ds_train,
+        eval_dataset=ds_valid,
+        tokenizer=tok,
+        data_collator=data_collator,
+        compute_metrics=compute_metrics,
+    )
+    train_out = trainer.train()
+    print(train_out)
+
 
     eval_out = trainer.evaluate(
         eval_dataset=ds_valid,
