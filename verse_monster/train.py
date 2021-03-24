@@ -3,7 +3,6 @@ import logging
 from typing import *
 
 import numpy as np
-import torch
 from datasets import load_metric
 from torch import nn
 from transformers import (
@@ -13,8 +12,6 @@ from transformers import (
     Seq2SeqTrainer,
     IntervalStrategy,
 )
-from transformers.models.fsmt import modeling_fsmt
-from transformers.models.fsmt.modeling_fsmt import triu_onnx
 
 from verse_monster import constants, utils, tokenizer
 from verse_monster.collator import MySeq2SeqCollator
@@ -51,9 +48,7 @@ def freeze_weights(model: nn.Module, layers_to_skip: List[str], do_learn_layer_n
         print(f'Number of trainable parameters: {count}')
 
 
-def unfreeze_weights(model: nn.Module, layers_to_skip: Optional[List[str]] = None):
-    # if layers_to_skip is None:
-    #     layers_to_skip = []
+def unfreeze_weights(model: nn.Module):
 
     for name, param in model.named_parameters(recurse=True):
         # if name in layers_to_skip:
@@ -143,7 +138,7 @@ def prep_dataset(dataset, keys_to_remove, num_datapoints_to_keep):
 
 
 if __name__ == '__main__':
-    do_recreate_my_model = True
+    do_recreate_my_model = False
     do_test_run = False
 
     batch_size = 8
