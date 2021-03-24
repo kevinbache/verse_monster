@@ -8,8 +8,6 @@ from transformers.file_utils import PaddingStrategy
 from verse_monster import tokenizer
 
 
-
-
 @dataclass
 class MySeq2SeqCollator:
     """
@@ -53,6 +51,9 @@ class MySeq2SeqCollator:
     pad_to_multiple_of: Optional[int] = None
     label_pad_token_id: int = tokenizer.CharPhonemeTokenizer.pad_token_id
 
+    def __init__(self):
+        self.tok = tokenizer.CharPhonemeTokenizer()
+
     @classmethod
     def _pad(
             cls,
@@ -78,3 +79,6 @@ class MySeq2SeqCollator:
             data[k] = self._pad(data[k], pad_token_id=self.tokenizer.pad_token_id)
 
         return data
+
+    def convert_tokens_to_ids(self, tokens):
+        self.tok.convert_tokens_to_ids(tokens)
