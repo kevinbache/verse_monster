@@ -4,7 +4,7 @@ from typing import List, Dict, Any
 
 import pandas as pd
 import torch
-from torch.utils.data import IterableDataset
+from torch.utils.data import IterableDataset, Dataset
 
 from verse_monster import constants, utils, tokenizer
 
@@ -65,7 +65,7 @@ def cmu_dict_2_csv():
     print(len(all_phonemes), all_phonemes)
 
 
-class ListMetaDataset(IterableDataset):
+class ListMetaDataset(Dataset):
     def __init__(self, list_of_datapoints: List[Dict[str, Any]], list_of_meta: List[Dict[str, Any]]):
         super().__init__()
         assert (len(list_of_datapoints) == len(list_of_meta))

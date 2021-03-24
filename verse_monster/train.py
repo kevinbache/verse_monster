@@ -183,10 +183,10 @@ if __name__ == '__main__':
 
     if do_test_run:
         with utils.Timer('loading tiny datset'):
-            ds_tiny = utils.load_cloudpickle(constants.TINY_DATASET)
-            ds_train = ds_tiny
-            ds_valid = copy.deepcopy(ds_tiny)
-            ds_test = copy.deepcopy(ds_tiny)
+            # ds_tiny = utils.load_cloudpickle(constants.TINY_DATASET)
+            ds_train = utils.load_cloudpickle(constants.TINY_DATASET)
+            ds_valid = utils.load_cloudpickle(constants.TINY_DATASET)
+            ds_test = utils.load_cloudpickle(constants.TINY_DATASET)
     else:
         with utils.Timer('loading datasets'):
             # noinspection PyRedeclaration
@@ -252,19 +252,19 @@ if __name__ == '__main__':
     trainer_args = Seq2SeqTrainingArguments(
         output_dir=constants.OUTPUT_DIR,  # output directory
         logging_dir=constants.LOGS_DIR,  # directory for storing logs
-        # num_train_epochs=1,  # total # of training epochs
-        max_steps=init_steps,
+        num_train_epochs=100,  # total # of training epochs
+        # max_steps=init_steps,
         per_device_train_batch_size=batch_size,  # batch size per device during training
         per_device_eval_batch_size=batch_size,  # batch size for evaluation
         warmup_steps=init_steps,    # number of warmup steps for learning rate scheduler
         learning_rate=1e-3,
         weight_decay=0.001,  # strength of weight decay
         predict_with_generate=True,
-        sortish_sampler=True,
+        # sortish_sampler=True,
         do_eval=True,
         do_predict=True,
-        evaluation_strategy=IntervalStrategy.STEPS,
-        eval_steps=100,
+        evaluation_strategy=IntervalStrategy.EPOCH,
+        # eval_steps=100,
         dataloader_num_workers=4,
         report_to=['none'],
         lr_scheduler_type=SchedulerType.CONSTANT_WITH_WARMUP,
