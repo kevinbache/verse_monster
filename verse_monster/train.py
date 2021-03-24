@@ -69,8 +69,8 @@ def prep_model(
 
 
 def postprocess_text(preds, labels):
-    preds = [pred.strip() for pred in preds]
-    labels = [[label.strip()] for label in labels]
+    preds = [pred.split().strip() for pred in preds if pred]
+    labels = [[label.split().strip()] for label in labels if label]
 
     return preds, labels
 
@@ -92,6 +92,10 @@ def compute_metrics(eval_preds):
 
     # Some simple post-processing
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
+    # decoded_preds = [p.split() for p in decoded_preds]
+    # decoded_labels = [p.split() for p in decoded_preds]
+
+    # decoded_labels = [[l] for l in decoded_labels]
 
     print('preds, labels:')
     print(decoded_preds)
@@ -101,9 +105,8 @@ def compute_metrics(eval_preds):
     # references_corpus = [[['My', 'full', 'pytorch', 'test']]]
     # bleu_score(candidate_corpus, references_corpus)
 
-    result = metric.compute(predictions=decoded_preds, references=decoded_labels)
     result = {
-        "sacrebleu": result["score"],
+        "sacrebleu": metric.compute(predictions=decoded_preds, references=decoded_labels)['score'],
     }
 
     prediction_lens = [np.count_nonzero(pred != constants.INPUTS_PAD_ID) for pred in preds]
