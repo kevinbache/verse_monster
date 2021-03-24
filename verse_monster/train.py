@@ -37,10 +37,10 @@ def copy_weights(from_model: nn.Module, to_model: nn.Module, layer_names_to_skip
 
 
 def freeze_weights(model: nn.Module, layers_to_skip: List[str], do_learn_layer_norms=True, do_print_count=True):
-    # for name, param in model.named_parameters(recurse=True):
-    #     if name in layers_to_skip or (do_learn_layer_norms and 'layer_norm' in name):
-    #         continue
-    #     param.requires_grad = False
+    for name, param in model.named_parameters(recurse=True):
+        if name in layers_to_skip or (do_learn_layer_norms and 'layer_norm' in name):
+            continue
+        param.requires_grad = False
 
     if do_print_count:
         count = sum(param.numel() for param in model.parameters(recurse=True) if param.requires_grad)
@@ -152,7 +152,7 @@ if __name__ == '__main__':
 
     num_beams = 4
 
-    num_train = 1000
+    num_train = 10000
     num_valid = 100
 
     ds_train = None
@@ -231,13 +231,13 @@ if __name__ == '__main__':
     trainer_args = Seq2SeqTrainingArguments(
         output_dir=constants.OUTPUT_DIR,  # output directory
         logging_dir=constants.LOGS_DIR,  # directory for storing logs
-        num_train_epochs=4,  # total # of training epochs
+        num_train_epochs=2,  # total # of training epochs
         # max_steps=100,
         per_device_train_batch_size=batch_size,  # batch size per device during training
         per_device_eval_batch_size=batch_size,  # batch size for evaluation
-        warmup_steps=500,  # number of warmup steps for learning rate scheduler
-        learning_rate=1e-3,
-        weight_decay=0.01,  # strength of weight decay
+        warmup_steps=500,    # number of warmup steps for learning rate scheduler
+        learning_rate=1e-4,
+        weight_decay=0.001,  # strength of weight decay
         predict_with_generate=True,
         sortish_sampler=True,
         do_eval=True,
@@ -262,6 +262,8 @@ if __name__ == '__main__':
 
     train_out = trainer.train()
     print(train_out)
+
+
 
     eval_out = trainer.evaluate(
         eval_dataset=ds_valid,
