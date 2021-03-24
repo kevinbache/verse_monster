@@ -3,6 +3,7 @@ from collections import defaultdict
 from typing import List, Dict, Any
 
 import pandas as pd
+import torch
 from torch.utils.data import IterableDataset
 
 from verse_monster import constants, utils, tokenizer
@@ -116,7 +117,7 @@ if __name__ == '__main__':
             dp = row['letters_tok']
             dp[constants.DataNames.LABELS] = row['phonemes_tok'][constants.DataNames.INPUT_IDS]
             for k in dp:
-                dp[k] = dp[k].squeeze()
+                dp[k] = torch.tensor(dp[k].squeeze())
 
             datapoints.append(dp)
             metas.append({
