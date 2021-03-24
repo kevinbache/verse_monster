@@ -107,7 +107,7 @@ def convert_dataset_to_lists(dataset):
 
 
 if __name__ == '__main__':
-    do_recreate_my_model = True
+    do_recreate_my_model = False
     do_test_run = False
 
     batch_size = 8
@@ -221,7 +221,7 @@ if __name__ == '__main__':
     trainer_args = Seq2SeqTrainingArguments(
         output_dir=constants.OUTPUT_DIR,          # output directory
         logging_dir=constants.LOGS_DIR,           # directory for storing logs
-        num_train_epochs=4,                       # total # of training epochs
+        num_train_epochs=5,                       # total # of training epochs
         # max_steps=100,
         per_device_train_batch_size=batch_size,   # batch size per device during training
         per_device_eval_batch_size=batch_size,    # batch size for evaluation
@@ -270,3 +270,7 @@ if __name__ == '__main__':
 
     predict_out = trainer.predict(test_dataset=ds_tiny if do_test_run else ds_valid, max_length=40, num_beams=num_beams)
     print(predict_out)
+
+    print('Predictions:')
+    with tok.as_target_tokenizer():
+        print(tok.batch_decode(predict_out.predictions))
