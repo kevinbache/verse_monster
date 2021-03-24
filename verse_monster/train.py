@@ -153,7 +153,7 @@ if __name__ == '__main__':
     num_beams = 4
 
     num_train = 10000
-    num_valid = 100
+    num_valid = 400
 
     ds_train = None
     ds_valid = None
@@ -245,7 +245,7 @@ if __name__ == '__main__':
         do_eval=True,
         do_predict=True,
         evaluation_strategy=IntervalStrategy.STEPS,
-        eval_steps=500,
+        eval_steps=100,
         dataloader_num_workers=4,
         report_to=['none'],
         lr_scheduler_type=SchedulerType.CONSTANT_WITH_WARMUP,
@@ -253,25 +253,25 @@ if __name__ == '__main__':
         seed=seed,
     )
 
-    # round 1 -- train embeddings only
-    freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=True)
-    trainer = Seq2SeqTrainer(
-        model=my_model,
-        args=trainer_args,
-        train_dataset=ds_train,
-        eval_dataset=ds_valid,
-        tokenizer=tok,
-        data_collator=data_collator,
-        compute_metrics=compute_metrics,
-    )
-    train_out = trainer.train()
-    print(train_out)
+    # # round 1 -- train embeddings only
+    # freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=True)
+    # trainer = Seq2SeqTrainer(
+    #     model=my_model,
+    #     args=trainer_args,
+    #     train_dataset=ds_train,
+    #     eval_dataset=ds_valid,
+    #     tokenizer=tok,
+    #     data_collator=data_collator,
+    #     compute_metrics=compute_metrics,
+    # )
+    # train_out = trainer.train()
+    # print(train_out)
+    # unfreeze_weights(my_model)
 
     # round 2 -- train all weights
-    unfreeze_weights(my_model)
     trainer_args.max_steps = -1
-    trainer_args.num_train_epochs = 2
-    trainer_args.learning_rate = 1e-5
+    trainer_args.num_train_epochs = 1
+    trainer_args.learning_rate = 1e-4
     trainer = Seq2SeqTrainer(
         model=my_model,
         args=trainer_args,
@@ -283,7 +283,6 @@ if __name__ == '__main__':
     )
     train_out = trainer.train()
     print(train_out)
-
 
     eval_out = trainer.evaluate(
         eval_dataset=ds_valid,
