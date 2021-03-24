@@ -269,7 +269,7 @@ if __name__ == '__main__':
 
     # round 2 -- train all weights
     unfreeze_weights(my_model)
-    trainer_args.max_steps = None
+    trainer_args.max_steps = -1
     trainer_args.num_train_epochs = 2
     trainer_args.learning_rate = 1e-5
     trainer = Seq2SeqTrainer(
