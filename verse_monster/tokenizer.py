@@ -11,6 +11,16 @@ from verse_monster import utils, constants
 
 
 class CharPhonemeTokenizer(PreTrainedTokenizer):
+    BOS_ID = 0
+    PAD_ID = 1
+    SEP_ID = 2
+    UNK_ID = 3
+
+    _bos_token = '<s>'
+    _pad_token = '<pad>'
+    _sep_token = '</s>'
+    _unk_token = '<unk>'
+
     def __init__(
             self,
             **kwargs
@@ -23,14 +33,6 @@ class CharPhonemeTokenizer(PreTrainedTokenizer):
         self.langs = ['en-char', 'en-phoneme']
 
         # taken from FSMT
-        self._bos_token = '<s>'
-        self.BOS_ID = 0
-        self._pad_token = '<pad>'
-        self.PAD_ID = 1
-        self._sep_token = '</s>'
-        self.SEP_ID = 2
-        self._unk_token = '<unk>'
-        self.UNK_ID = 3
         specials = {
             self._bos_token: self.BOS_ID,
             self._pad_token: self.PAD_ID,
