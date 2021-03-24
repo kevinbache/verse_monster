@@ -133,7 +133,7 @@ def prep_dataset(dataset, keys_to_remove, num_datapoints_to_keep):
     remove_keys(dataset, keys_to_remove)
     for dp in dataset:
         print('prep dp: ', dp)
-        dp['target'] = torch.cat([tokenizer.CharPhonemeTokenizer.bos_token_id, dp['target']])
+        dp['labels'] = torch.cat([tokenizer.CharPhonemeTokenizer.bos_token_id, dp['labels']])
     return dataset
 
 
