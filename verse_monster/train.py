@@ -16,7 +16,6 @@ from transformers import (
 from verse_monster import constants, utils, tokenizer, fsmt
 from verse_monster.collator import MySeq2SeqCollator
 
-
 logger = logging.getLogger(__name__)
 logger.setLevel('INFO')
 
@@ -51,7 +50,6 @@ def freeze_weights(model: nn.Module, layers_to_skip: List[str], do_learn_layer_n
 
 
 def unfreeze_weights(model: nn.Module):
-
     for name, param in model.named_parameters(recurse=True):
         # if name in layers_to_skip:
         #     continue
@@ -74,6 +72,10 @@ def postprocess_text(preds, labels):
     labels = [[label.strip()] for label in labels]
 
     return preds, labels
+
+
+# Metric
+metric = load_metric("sacrebleu")
 
 
 # noinspection DuplicatedCode
@@ -241,20 +243,18 @@ if __name__ == '__main__':
         label_pad_token_id=constants.INPUTS_PAD_ID,
     )
 
-    # Metric
-    metric = load_metric("sacrebleu")
-
     from transformers import SchedulerType, TrainingArguments
+
     trainer_args = Seq2SeqTrainingArguments(
-        output_dir=constants.OUTPUT_DIR,          # output directory
-        logging_dir=constants.LOGS_DIR,           # directory for storing logs
-        num_train_epochs=1,                       # total # of training epochs
+        output_dir=constants.OUTPUT_DIR,  # output directory
+        logging_dir=constants.LOGS_DIR,  # directory for storing logs
+        num_train_epochs=4,  # total # of training epochs
         # max_steps=100,
-        per_device_train_batch_size=batch_size,   # batch size per device during training
-        per_device_eval_batch_size=batch_size,    # batch size for evaluation
-        warmup_steps=500,                         # number of warmup steps for learning rate scheduler
+        per_device_train_batch_size=batch_size,  # batch size per device during training
+        per_device_eval_batch_size=batch_size,  # batch size for evaluation
+        warmup_steps=500,  # number of warmup steps for learning rate scheduler
         learning_rate=1e-3,
-        weight_decay=0.01,                        # strength of weight decay
+        weight_decay=0.01,  # strength of weight decay
         predict_with_generate=True,
         sortish_sampler=True,
         do_eval=True,
