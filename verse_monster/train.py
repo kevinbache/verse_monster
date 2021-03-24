@@ -166,8 +166,8 @@ if __name__ == '__main__':
         with utils.Timer('loading tiny datset'):
             ds_tiny = utils.load_cloudpickle(constants.TINY_DATASET)
             ds_train = ds_tiny
-            ds_valid = ds_tiny
-            ds_test = ds_tiny
+            ds_valid = copy.deepcopy(ds_tiny)
+            ds_test = copy.deepcopy(ds_tiny)
     else:
         with utils.Timer('loading datasets'):
             # noinspection PyRedeclaration

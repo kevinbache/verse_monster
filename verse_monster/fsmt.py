@@ -104,19 +104,19 @@ class MyFSMTModel(FSMTModel):
         else:
             decoder_padding_mask, causal_mask = None, None
 
-        print()
-        print()
-        print('fsmt.py input_ids:')
-        print(input_ids)
-
-        print('fsmt.py decoder input ids:')
-        print(decoder_input_ids)
-
-        print('fsmt.py causal mask:')
-        print(causal_mask)
-
-        print('fsmt.py decoder_padding_mask:')
-        print(decoder_padding_mask)
+        # print()
+        # print()
+        # print('fsmt.py input_ids:')
+        # print(input_ids)
+        #
+        # print('fsmt.py decoder input ids:')
+        # print(decoder_input_ids)
+        #
+        # print('fsmt.py causal mask:')
+        # print(causal_mask)
+        #
+        # print('fsmt.py decoder_padding_mask:')
+        # print(decoder_padding_mask)
 
         assert decoder_input_ids is not None
 
@@ -261,24 +261,24 @@ class MyFSMTForConditionalGeneration(PretrainedFSMTModel):
         )
         lm_logits = outputs[0]
 
-        print('fsmt.py')
-
-        # print(f'  lm_logits:')
-        # print(lm_logits)
-        print(f'  lm_logits shapes: {lm_logits.shape}, {lm_logits.view(-1, self.config.tgt_vocab_size).shape}')
+        # print('fsmt.py')
+        #
+        # # print(f'  lm_logits:')
+        # # print(lm_logits)
+        # print(f'  lm_logits shapes: {lm_logits.shape}, {lm_logits.view(-1, self.config.tgt_vocab_size).shape}')
 
         masked_lm_loss = None
         if labels is not None:
             loss_fct = CrossEntropyLoss(ignore_index=1)
             # TODO(SS): do we need to ignore pad tokens in labels?
 
-            print(f'  labels:')
-            print(labels)
-            print(f'  labels shapes: {labels.shape}, {labels.view(-1).shape}')
+            # print(f'  labels:')
+            # print(labels)
+            # print(f'  labels shapes: {labels.shape}, {labels.view(-1).shape}')
 
             masked_lm_loss = loss_fct(lm_logits.view(-1, self.config.tgt_vocab_size), labels.view(-1))
-            print(f'  masked_lm_loss: {masked_lm_loss}')
-            print(f'  masked_lm_loss.shape: {masked_lm_loss.shape}')
+            # print(f'  masked_lm_loss: {masked_lm_loss}')
+            # print(f'  masked_lm_loss.shape: {masked_lm_loss.shape}')
 
         if not return_dict:
             output = (lm_logits,) + outputs[1:]
