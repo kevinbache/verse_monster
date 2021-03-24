@@ -222,7 +222,7 @@ class FSMTForConditionalGeneration(PretrainedFSMTModel):
 
         masked_lm_loss = None
         if labels is not None:
-            loss_fct = CrossEntropyLoss(reduce=False, ignore_index=1)
+            loss_fct = CrossEntropyLoss(ignore_index=1)
             # TODO(SS): do we need to ignore pad tokens in labels?
 
             print(f'  labels:')
