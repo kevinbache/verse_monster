@@ -131,9 +131,10 @@ def prep_dataset(dataset, keys_to_remove, num_datapoints_to_keep):
         return dataset
     dataset = limit_datset(dataset, num_datapoints_to_keep)
     remove_keys(dataset, keys_to_remove)
+    bos_tensor = torch.tensor([tokenizer.CharPhonemeTokenizer.bos_token_id])
     for dp in dataset:
         print('prep dp: ', dp)
-        dp['labels'] = torch.cat([tokenizer.CharPhonemeTokenizer.bos_token_id, dp['labels']])
+        dp['labels'] = torch.cat([bos_tensor, dp['labels']])
     return dataset
 
 
