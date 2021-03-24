@@ -125,6 +125,17 @@ def limit_datset(ds, num_datapoints):
 WEIGHTS_MODEL_NAME = 'facebook/wmt19-en-ru'
 
 
+def prep_dataset(dataset, keys_to_remove, num_datapoints_to_keep):
+    if dataset is None
+        return dataset
+    dataset = limit_datset(dataset, num_datapoints_to_keep)
+    remove_keys(dataset, keys_to_remove)
+    for dp in dataset:
+        print('prep dp: ', dp)
+        # dp['target'] =
+    return dataset
+
+
 if __name__ == '__main__':
     do_recreate_my_model = False
     do_test_run = False
@@ -136,6 +147,12 @@ if __name__ == '__main__':
     num_train = 1000
     num_valid = 100
 
+    ds_train = None
+    ds_valid = None
+    ds_test = None
+
+    keys_to_remove = ('decoder_attention_mask', 'decoder_input_ids')
+
     if do_test_run:
         with utils.Timer('loading tiny datset'):
             ds_tiny = utils.load_cloudpickle(constants.TINY_DATASET)
@@ -143,20 +160,16 @@ if __name__ == '__main__':
             ds_valid = ds_tiny
     else:
         with utils.Timer('loading datasets'):
+            # noinspection PyRedeclaration
             ds_train = utils.load_cloudpickle(constants.TRAIN_DATASET)
+            # noinspection PyRedeclaration
             ds_valid = utils.load_cloudpickle(constants.VALID_DATASET)
+            # noinspection PyRedeclaration
             # ds_test = utils.load_cloudpickle(constants.TEST_DATASET)
 
-            if num_train is not None:
-                ds_train = limit_datset(ds_train, num_train)
-            if num_valid is not None:
-                ds_valid = limit_datset(ds_train, num_valid)
-
-            keys_to_remove = ('decoder_attention_mask', 'decoder_input_ids')
-            # keys_to_remove = ('decoder_attention_mask', )
-            # keys_to_remove = ()
-            remove_keys(ds_train, keys_to_remove)
-            remove_keys(ds_valid, keys_to_remove)
+            ds_train = prep_dataset(ds_train, keys_to_remove, num_train)
+            ds_valid = prep_dataset(ds_valid, keys_to_remove, num_valid)
+            ds_test = prep_dataset(ds_test, keys_to_remove, num_valid)
 
             """
             attn_mask
