@@ -69,6 +69,9 @@ def prep_model(
 
 
 def postprocess_text(preds, labels):
+    if len(preds) != len(labels):
+        raise ValueError(f'preds len: {len(preds)}, labels len: {len(labels)}.  \n\npreds: \n{preds}  \n\nlabels: \n{labels}')
+
     preds = [pred.strip() for pred in preds if pred]
     labels = [[label.strip()] for label in labels if label]
 
