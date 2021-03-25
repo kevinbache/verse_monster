@@ -259,7 +259,7 @@ if __name__ == '__main__':
     trainer_args = Seq2SeqTrainingArguments(
         output_dir=constants.OUTPUT_DIR,         # output directory
         logging_dir=constants.LOGS_DIR,          # directory for storing logs
-        num_train_epochs=1,                    # total # of training epochs
+        num_train_epochs=100,                    # total # of training epochs
         # max_steps=init_steps,
         per_device_train_batch_size=batch_size,  # batch size per device during training
         per_device_eval_batch_size=batch_size,   # batch size for evaluation
@@ -272,7 +272,7 @@ if __name__ == '__main__':
         do_predict=True,
         evaluation_strategy=IntervalStrategy.EPOCH,
         # eval_steps=100,
-        dataloader_num_workers=2,
+        dataloader_num_workers=4,
         report_to=['none'],
         lr_scheduler_type=SchedulerType.CONSTANT_WITH_WARMUP,
         logging_first_step=True,
