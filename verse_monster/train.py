@@ -82,17 +82,17 @@ metric = load_metric("sacrebleu")
 # noinspection DuplicatedCode
 def compute_metrics(eval_preds):
     preds, labels = eval_preds
-    print(f'compute metrics preds:          {preds}')
+    # print(f'compute metrics preds:          {preds}')
     if isinstance(preds, tuple):
         preds = preds[0]
-    print(f'compute metrics preds2:         {preds}')
+    # print(f'compute metrics preds2:         {preds}')
     decoded_preds = tok.batch_decode(preds, skip_special_tokens=True)
     # if data_args.ignore_pad_token_for_loss:
     #     # Replace -100 in the labels as we can't decode them.
     #     labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
     decoded_labels = tok.batch_decode(labels, skip_special_tokens=True)
 
-    print(f'compute metrics decoded_preds:  {decoded_preds}')
+    # print(f'compute metrics decoded_preds:  {decoded_preds}')
 
     # Some simple post-processing
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
@@ -101,7 +101,7 @@ def compute_metrics(eval_preds):
 
     # decoded_labels = [[l] for l in decoded_labels]
 
-    print(f'compute metrics decoded_preds 2:  {decoded_preds}')
+    print(f'compute metrics decoded_preds 2:  {[p[:50] for p in decoded_preds]}')
 
     # print('preds, labels:')
     # print(decoded_preds)
