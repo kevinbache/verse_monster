@@ -82,13 +82,17 @@ metric = load_metric("sacrebleu")
 # noinspection DuplicatedCode
 def compute_metrics(eval_preds):
     preds, labels = eval_preds
+    print(f'compute metrics preds:          {preds}')
     if isinstance(preds, tuple):
         preds = preds[0]
+    print(f'compute metrics preds2:         {preds}')
     decoded_preds = tok.batch_decode(preds, skip_special_tokens=True)
     # if data_args.ignore_pad_token_for_loss:
     #     # Replace -100 in the labels as we can't decode them.
     #     labels = np.where(labels != -100, labels, tokenizer.pad_token_id)
     decoded_labels = tok.batch_decode(labels, skip_special_tokens=True)
+
+    print(f'compute metrics decoded_preds:  {decoded_preds}')
 
     # Some simple post-processing
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
@@ -96,6 +100,8 @@ def compute_metrics(eval_preds):
     # decoded_labels = [p.split() for p in decoded_preds]
 
     # decoded_labels = [[l] for l in decoded_labels]
+
+    print(f'compute metrics decoded_preds 2:  {decoded_preds}')
 
     print('preds, labels:')
     print(decoded_preds)
@@ -164,8 +170,9 @@ if __name__ == '__main__':
     seed = 1234
     np.random.seed(seed)
 
-    do_recreate_my_model = True
-    do_test_run = utils.is_local_run()
+    do_recreate_my_model = False
+    # do_test_run = utils.is_local_run()
+    do_test_run = True
 
     batch_size = 8
 
@@ -252,7 +259,7 @@ if __name__ == '__main__':
     trainer_args = Seq2SeqTrainingArguments(
         output_dir=constants.OUTPUT_DIR,         # output directory
         logging_dir=constants.LOGS_DIR,          # directory for storing logs
-        num_train_epochs=100,                    # total # of training epochs
+        num_train_epochs=1,                    # total # of training epochs
         # max_steps=init_steps,
         per_device_train_batch_size=batch_size,  # batch size per device during training
         per_device_eval_batch_size=batch_size,   # batch size for evaluation
@@ -265,7 +272,7 @@ if __name__ == '__main__':
         do_predict=True,
         evaluation_strategy=IntervalStrategy.EPOCH,
         # eval_steps=100,
-        dataloader_num_workers=4,
+        dataloader_num_workers=2,
         report_to=['none'],
         lr_scheduler_type=SchedulerType.CONSTANT_WITH_WARMUP,
         logging_first_step=True,
