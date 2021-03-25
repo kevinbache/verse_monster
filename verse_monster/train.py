@@ -103,8 +103,8 @@ def compute_metrics(eval_preds):
 
     print(f'compute metrics decoded_preds 2:  {decoded_preds}')
 
-    print('preds, labels:')
-    print(decoded_preds)
+    # print('preds, labels:')
+    # print(decoded_preds)
     print(decoded_labels)
 
     # candidate_corpus = [['My', 'full', 'pytorch', 'test']]
