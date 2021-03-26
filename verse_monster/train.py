@@ -262,12 +262,12 @@ if __name__ == '__main__':
     trainer_args = Seq2SeqTrainingArguments(
         output_dir=constants.OUTPUT_DIR,         # output directory
         logging_dir=constants.LOGS_DIR,          # directory for storing logs
-        num_train_epochs=100,                    # total # of training epochs
+        num_train_epochs=1000,                    # total # of training epochs
         # max_steps=init_steps,
         per_device_train_batch_size=batch_size,  # batch size per device during training
         per_device_eval_batch_size=batch_size,   # batch size for evaluation
         warmup_steps=init_steps,                 # number of warmup steps for learning rate scheduler
-        learning_rate=1e-3,
+        learning_rate=3e-4,
         weight_decay=0.001,                      # strength of weight decay
         predict_with_generate=True,
         # sortish_sampler=True,
