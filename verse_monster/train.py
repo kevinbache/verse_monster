@@ -288,7 +288,7 @@ if __name__ == '__main__':
         model=my_model,
         args=trainer_args,
         train_dataset=ds_train,
-        eval_dataset=ds_valid,
+        # eval_dataset=ds_valid,
         tokenizer=tok,
         data_collator=data_collator,
         compute_metrics=compute_metrics,
