@@ -273,7 +273,7 @@ if __name__ == '__main__':
         # sortish_sampler=True,
         do_eval=True,
         do_predict=True,
-        evaluation_strategy=IntervalStrategy.EPOCH,
+        evaluation_strategy=IntervalStrategy.NO,
         # eval_steps=100,
         dataloader_num_workers=4,
         report_to=['none'],
@@ -314,12 +314,12 @@ if __name__ == '__main__':
     # train_out = trainer.train()
     # print(train_out)
     #
-    # eval_out = trainer.evaluate(
-    #     eval_dataset=ds_valid,
-    #     max_length=40,
-    #     num_beams=num_beams,
-    # )
-    # print(eval_out)
+    eval_out = trainer.evaluate(
+        eval_dataset=ds_valid,
+        max_length=40,
+        num_beams=num_beams,
+    )
+    print(eval_out)
     #
     # num_preds = 10
     #
