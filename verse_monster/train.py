@@ -177,7 +177,7 @@ if __name__ == '__main__':
     # do_test_run = utils.is_local_run()
     do_test_run = True
 
-    batch_size = 8
+    batch_size = 5
 
     num_beams = 4
 
