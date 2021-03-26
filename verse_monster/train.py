@@ -283,7 +283,7 @@ if __name__ == '__main__':
     )
 
     # round 1 -- train embeddings only
-    freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=True)
+    # freeze_weights(my_model, layers_to_skip=layer_names_to_learn, do_learn_layer_norms=True)
     trainer = Seq2SeqTrainer(
         model=my_model,
         args=trainer_args,
